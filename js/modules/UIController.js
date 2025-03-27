@@ -9,6 +9,14 @@ class UIController {
         this.matchesDisplay = document.getElementById('matches');
         this.attemptsDisplay = document.getElementById('attempts');
         this.themeSelect = document.getElementById('theme');
+        
+        // Points and achievements UI elements
+        this.pointsDisplay = document.getElementById('currentPoints');
+        this.totalPointsDisplay = document.getElementById('totalPoints');
+        this.levelDisplay = document.getElementById('playerLevel');
+        this.levelProgressBar = document.getElementById('levelProgress');
+        this.achievementsContainer = document.getElementById('achievements');
+        this.rewardMessageContainer = document.getElementById('rewardMessage');
     }
     
     // Reset game container and boards
@@ -115,6 +123,70 @@ class UIController {
     
     // Setup individual card element
     setupCardElement(card, cardElement, proficiency) {
+        // Handle spelling-related cards
+        if (typeof card === 'object' && (card.matchType === 'spelling' || card.matchType === 'confused-word' || card.matchType === 'spelling-meaning')) {
+            cardElement.dataset.matchGroup = card.matchGroup;
+            cardElement.dataset.value = card.id;
+            
+            // Set data attributes for matching logic
+            if (card.isWord !== undefined) cardElement.dataset.isWord = String(card.isWord);
+            if (card.isSpelling !== undefined) cardElement.dataset.isSpelling = String(card.isSpelling);
+            if (card.isMeaning !== undefined) cardElement.dataset.isMeaning = String(card.isMeaning);
+            
+            // Apply appropriate styling classes
+            if (card.type === 'spelling-word') {
+                cardElement.classList.add('spelling-word-card');
+            } else if (card.type === 'spelling-correct') {
+                cardElement.classList.add('spelling-correct-card');
+            } else if (card.type === 'spelling-meaning') {
+                cardElement.classList.add('spelling-meaning-card');
+            }
+            
+            cardElement.innerHTML = `
+                <div class="card-back">?</div>
+                <div class="card-front">${card.display}</div>
+            `;
+            
+            cardElement.dataset.cardType = proficiency;
+            return cardElement;
+        }
+        
+        // Special handling for word-meaning cards
+        if (typeof card === 'object' && card.matchType === 'word-meaning') {
+            cardElement.dataset.matchGroup = card.matchGroup;
+            cardElement.dataset.value = card.id;
+            cardElement.dataset.isWord = String(card.isWord || false);
+            cardElement.dataset.isMeaning = String(card.isMeaning || false);
+            cardElement.dataset.isCategory = String(card.isCategory || false);
+            
+            // Style based on card type
+            if (card.type === 'word') {
+                cardElement.classList.add('word-card');
+                
+                // Special styling for Hindi words
+                if (this.themeSelect.value === 'hindiWords') {
+                    cardElement.classList.add('hindi-text');
+                }
+            } else if (card.type === 'meaning') {
+                cardElement.classList.add('meaning-card');
+                
+                // Special styling for Hindi meanings
+                if (this.themeSelect.value === 'hindiWords') {
+                    cardElement.classList.add('hindi-text');
+                }
+            } else if (card.type === 'category') {
+                cardElement.classList.add('category-card');
+            }
+            
+            cardElement.innerHTML = `
+                <div class="card-back">?</div>
+                <div class="card-front">${card.display}</div>
+            `;
+            
+            cardElement.dataset.cardType = proficiency;
+            return cardElement;
+        }
+        
         // Special handling for number arithmetic cards
         if (typeof card === 'object' && card.type === 'number' || card.type === 'operator') {
             cardElement.dataset.matchGroup = card.matchGroup;
@@ -228,5 +300,191 @@ class UIController {
         }
         
         return cardElement;
+    }
+    
+    // Update the points display
+    updatePoints(currentPoints, totalPoints = null) {
+        if (this.pointsDisplay) {
+            this.pointsDisplay.textContent = currentPoints;
+        }
+        
+        if (totalPoints !== null && this.totalPointsDisplay) {
+            this.totalPointsDisplay.textContent = totalPoints;
+        }
+    }
+    
+    // Update player level display
+    updateLevel(levelInfo) {
+        if (this.levelDisplay) {
+            this.levelDisplay.textContent = levelInfo.level;
+        }
+        
+        if (this.levelProgressBar) {
+            this.levelProgressBar.style.width = `${levelInfo.percentage}%`;
+            this.levelProgressBar.setAttribute('aria-valuenow', levelInfo.percentage);
+            this.levelProgressBar.textContent = `${levelInfo.percentage}%`;
+        }
+    }
+    
+    // Display a reward notification
+    showRewardMessage(message, type = 'success') {
+        if (!this.rewardMessageContainer) return;
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = `alert alert-${type} reward-message`;
+        messageElement.innerHTML = message;
+        
+        // Add animation classes
+        messageElement.classList.add('animate__animated', 'animate__bounceIn');
+        
+        // Add to container
+        this.rewardMessageContainer.appendChild(messageElement);
+        
+        // Remove after a few seconds
+        setTimeout(() => {
+            messageElement.classList.replace('animate__bounceIn', 'animate__fadeOut');
+            
+            // Remove element after animation completes
+            setTimeout(() => {
+                messageElement.remove();
+            }, 800);
+        }, 3000);
+    }
+    
+    // Show points earned animation
+    showPointsEarned(points, x, y) {
+        const pointsElement = document.createElement('div');
+        pointsElement.className = 'points-earned';
+        pointsElement.textContent = `+${points}`;
+        
+        // Position near the matched cards
+        pointsElement.style.position = 'absolute';
+        pointsElement.style.left = `${x}px`;
+        pointsElement.style.top = `${y}px`;
+        
+        // Add to body
+        document.body.appendChild(pointsElement);
+        
+        // Animate upward and fade out
+        setTimeout(() => {
+            pointsElement.style.transform = 'translateY(-50px)';
+            pointsElement.style.opacity = '0';
+            
+            // Remove element after animation
+            setTimeout(() => {
+                pointsElement.remove();
+            }, 1000);
+        }, 10);
+    }
+    
+    // Display game completion summary
+    showGameSummary(results) {
+        const summaryContainer = document.createElement('div');
+        summaryContainer.className = 'game-summary';
+        
+        let content = `
+            <h3>Game Complete!</h3>
+            <div class="summary-points">
+                <div class="row">
+                    <div class="col">Match Points:</div>
+                    <div class="col">${results.matchPoints}</div>
+                </div>
+                <div class="row">
+                    <div class="col">Completion Bonus:</div>
+                    <div class="col">+${results.completionPoints}</div>
+                </div>
+                <div class="row total-row">
+                    <div class="col">Total Game Points:</div>
+                    <div class="col">${results.totalGamePoints}</div>
+                </div>
+            </div>
+        `;
+        
+        if (results.perfectGame) {
+            content += `
+                <div class="perfect-game">
+                    <span class="badge badge-success">Perfect Game!</span>
+                    <p>You completed the game with minimum possible attempts!</p>
+                </div>
+            `;
+        }
+        
+        summaryContainer.innerHTML = content;
+        
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+        
+        // Add continue button
+        const continueButton = document.createElement('button');
+        continueButton.className = 'btn btn-primary mt-3';
+        continueButton.textContent = 'Continue';
+        continueButton.onclick = () => {
+            modalOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                modalOverlay.remove();
+            }, 500);
+        };
+        
+        summaryContainer.appendChild(continueButton);
+        modalOverlay.appendChild(summaryContainer);
+        document.body.appendChild(modalOverlay);
+    }
+    
+    // Update achievements display
+    updateAchievements(achievements) {
+        if (!this.achievementsContainer) return;
+        
+        // Clear existing achievements
+        this.achievementsContainer.innerHTML = '';
+        
+        if (achievements.length === 0) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.className = 'text-muted';
+            emptyMessage.textContent = 'Complete games to earn achievements!';
+            this.achievementsContainer.appendChild(emptyMessage);
+            return;
+        }
+        
+        // Create achievement badges
+        achievements.forEach(achievement => {
+            const badge = document.createElement('div');
+            badge.className = 'achievement-badge';
+            badge.setAttribute('data-toggle', 'tooltip');
+            badge.setAttribute('title', achievement.description);
+            
+            badge.innerHTML = `
+                <div class="achievement-icon">${achievement.icon}</div>
+                <div class="achievement-info">
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-points">+${achievement.points}</div>
+                </div>
+            `;
+            
+            this.achievementsContainer.appendChild(badge);
+        });
+        
+        // Initialize tooltips if Bootstrap is available
+        if (typeof $ !== 'undefined' && $.fn.tooltip) {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+    }
+    
+    // Show notification for a new achievement
+    showAchievementUnlocked(achievement) {
+        if (!achievement) return;
+        
+        const achievementNotification = `
+            <div class="achievement-unlocked">
+                <div class="achievement-icon">${achievement.icon}</div>
+                <div class="achievement-info">
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-description">${achievement.description}</div>
+                    <div class="achievement-points">+${achievement.points} points</div>
+                </div>
+            </div>
+        `;
+        
+        this.showRewardMessage(achievementNotification, 'primary');
     }
 }

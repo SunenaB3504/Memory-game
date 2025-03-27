@@ -3,24 +3,37 @@
 class GameModes {
     constructor(gameController) {
         this.gameController = gameController;
+        
+        // Store event handler references for proper removal
+        this.eventHandlers = new Map();
     }
     
     // Setup card click handlers based on mode
     setupCardHandlers(cardElement, mode) {
+        // Create handler and store reference for later removal
+        let handler;
+        
         switch (mode) {
             case 'easy':
-                cardElement.addEventListener('click', (e) => this.flipCardEasy(e.currentTarget));
+                handler = (e) => this.flipCardEasy(e.currentTarget);
+                cardElement.addEventListener('click', handler);
                 break;
             case 'warning':
-                cardElement.addEventListener('click', (e) => this.flipCardWarning(e.currentTarget));
+                handler = (e) => this.flipCardWarning(e.currentTarget);
+                cardElement.addEventListener('click', handler);
                 break;
             case 'danger':
-                cardElement.addEventListener('click', (e) => this.flipCardDanger(e.currentTarget));
+                handler = (e) => this.flipCardDanger(e.currentTarget);
+                cardElement.addEventListener('click', handler);
                 break;
             case 'multiname':
-                cardElement.addEventListener('click', (e) => this.flipCardMultiName(e.currentTarget));
+                handler = (e) => this.flipCardMultiName(e.currentTarget);
+                cardElement.addEventListener('click', handler);
                 break;
         }
+        
+        // Store reference to handler for this card
+        this.eventHandlers.set(cardElement, { mode, handler });
     }
     
     // Standard (Easy) level card flipping
@@ -99,12 +112,6 @@ class GameModes {
             this.disableWarningCards();
             this.gameController.matches++;
             this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
-            
-            if (this.gameController.matches === this.gameController.cardPairs) {
-                setTimeout(() => {
-                    alert(`Congratulations! You completed the game in ${this.gameController.attempts} attempts.`);
-                }, 500);
-            }
         } else {
             // Not a complete match
             this.unflipWarningCards();
@@ -119,8 +126,76 @@ class GameModes {
 
         card.classList.add('flipped');
         
+        const theme = this.gameController.themeSelect.value;
+        const isWordTheme = theme === 'englishWords' || theme === 'hindiWords';
+        const isSpellingTheme = theme === 'englishSpellings';
+        
+        // Special handling for word themes
+        if (isWordTheme) {
+            if (!this.gameController.firstCard) {
+                this.gameController.firstCard = card;
+                return;
+            }
+            
+            this.gameController.secondCard = card;
+            this.gameController.attempts++;
+            this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
+            
+            // Check if it's a match
+            if (this.checkWordMeaningMatch(this.gameController.firstCard, this.gameController.secondCard)) {
+                // It's a match
+                this.gameController.firstCard.classList.add('matched');
+                this.gameController.secondCard.classList.add('matched');
+                
+                this.removeCardHandlers(this.gameController.firstCard, 'danger');
+                this.removeCardHandlers(this.gameController.secondCard, 'danger');
+                
+                this.gameController.matches++;
+                this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
+                
+                this.resetBoardState();
+            } else {
+                // Not a match
+                this.unflipCards();
+            }
+            
+            return;
+        }
+        
+        // Special handling for spelling themes
+        if (isSpellingTheme) {
+            if (!this.gameController.firstCard) {
+                this.gameController.firstCard = card;
+                return;
+            }
+            
+            this.gameController.secondCard = card;
+            this.gameController.attempts++;
+            this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
+            
+            // Check if it's a match
+            if (this.checkSpellingMatch(this.gameController.firstCard, this.gameController.secondCard)) {
+                // It's a match
+                this.gameController.firstCard.classList.add('matched');
+                this.gameController.secondCard.classList.add('matched');
+                
+                this.removeCardHandlers(this.gameController.firstCard, 'danger');
+                this.removeCardHandlers(this.gameController.secondCard, 'danger');
+                
+                this.gameController.matches++;
+                this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
+                
+                this.resetBoardState();
+            } else {
+                // Not a match
+                this.unflipCards();
+            }
+            
+            return;
+        }
+        
         // Special handling for numbers theme
-        const isNumberTheme = this.gameController.themeSelect.value === 'numbers';
+        const isNumberTheme = theme === 'numbers';
         
         if (isNumberTheme) {
             const currentMatchGroup = card.dataset.matchGroup;
@@ -160,12 +235,6 @@ class GameModes {
                     
                     this.gameController.matches++;
                     this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
-                    
-                    if (this.gameController.matches === this.gameController.cardPairs) {
-                        setTimeout(() => {
-                            alert(`Congratulations! You completed the game in ${this.gameController.attempts} attempts.`);
-                        }, 500);
-                    }
                 } else {
                     // Not a match, unflip them
                     setTimeout(() => {
@@ -204,12 +273,6 @@ class GameModes {
             this.gameController.matches++;
             this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
             
-            if (this.gameController.matches === this.gameController.cardPairs) {
-                setTimeout(() => {
-                    alert(`Congratulations! You completed the game in ${this.gameController.attempts} attempts.`);
-                }, 500);
-            }
-            
             // Reset this match group
             this.gameController.matchGroups[currentMatchGroup] = [];
         }
@@ -241,8 +304,27 @@ class GameModes {
     
     // Check for match in easy mode
     checkForMatchEasy() {
-        const isNumberTheme = this.gameController.themeSelect.value === 'numbers';
+        const theme = this.gameController.themeSelect.value;
+        const isNumberTheme = theme === 'numbers';
+        const isWordTheme = theme === 'englishWords' || theme === 'hindiWords';
+        const isSpellingTheme = theme === 'englishSpellings';
         
+        // Check for word-meaning matches
+        if (isWordTheme) {
+            const isMatch = this.checkWordMeaningMatch(
+                this.gameController.firstCard, 
+                this.gameController.secondCard
+            );
+            
+            if (isMatch) {
+                this.disableCards();
+            } else {
+                this.unflipCards();
+            }
+            return;
+        }
+        
+        // Check for number matches
         if (isNumberTheme) {
             const isMatch = this.checkNumberMatch(
                 this.gameController.firstCard, 
@@ -251,14 +333,21 @@ class GameModes {
             
             if (isMatch) {
                 this.disableCards();
-                this.gameController.matches++;
-                this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
-                
-                if (this.gameController.matches === this.gameController.cardPairs) {
-                    setTimeout(() => {
-                        alert(`Congratulations! You completed the game in ${this.gameController.attempts} attempts.`);
-                    }, 500);
-                }
+            } else {
+                this.unflipCards();
+            }
+            return;
+        }
+        
+        // Check for spelling matches
+        if (isSpellingTheme) {
+            const isMatch = this.checkSpellingMatch(
+                this.gameController.firstCard, 
+                this.gameController.secondCard
+            );
+            
+            if (isMatch) {
+                this.disableCards();
             } else {
                 this.unflipCards();
             }
@@ -270,14 +359,6 @@ class GameModes {
 
         if (isMatch) {
             this.disableCards();
-            this.gameController.matches++;
-            this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
-            
-            if (this.gameController.matches === this.gameController.cardPairs) {
-                setTimeout(() => {
-                    alert(`Congratulations! You completed the game in ${this.gameController.attempts} attempts.`);
-                }, 500);
-            }
         } else {
             this.unflipCards();
         }
@@ -312,14 +393,6 @@ class GameModes {
             this.gameController.secondCard.style.borderColor = "#4CAF50";
             
             this.disableMultiNameCards();
-            this.gameController.matches++;
-            this.gameController.ui.updateScore(this.gameController.matches, this.gameController.attempts);
-            
-            if (this.gameController.matches === this.gameController.cardPairs) {
-                setTimeout(() => {
-                    alert(`Congratulations! You completed the game in ${this.gameController.attempts} attempts.`);
-                }, 500);
-            }
         } else {
             // Not a match
             console.log("NO MATCH");
@@ -327,28 +400,104 @@ class GameModes {
         }
     }
     
-    // Remove event handlers
+    // Check for word-meaning matches
+    checkWordMeaningMatch(card1, card2) {
+        // Check if they're from the same match group
+        if (card1.dataset.matchGroup !== card2.dataset.matchGroup) {
+            return false;
+        }
+        
+        const proficiency = this.gameController.currentProficiency;
+        
+        if (proficiency === 'easy' || proficiency === 'warning') {
+            // One card must be a word and the other must be a meaning
+            const isWordMeaningPair = 
+                (card1.dataset.isWord === "true" && card2.dataset.isMeaning === "true") ||
+                (card1.dataset.isMeaning === "true" && card2.dataset.isWord === "true");
+                
+            return isWordMeaningPair;
+        }
+        else if (proficiency === 'danger') {
+            // Cards must be in the same category, and must be different types
+            // (word/meaning pairs or category/word or category/meaning)
+            const card1Type = card1.dataset.isWord === "true" ? "word" : 
+                             (card1.dataset.isMeaning === "true" ? "meaning" : "category");
+            const card2Type = card2.dataset.isWord === "true" ? "word" : 
+                             (card2.dataset.isMeaning === "true" ? "meaning" : "category");
+                             
+            return card1Type !== card2Type;
+        }
+        
+        return false;
+    }
+    
+    // Check for spelling matches
+    checkSpellingMatch(card1, card2) {
+        // Check if they're part of the same match group
+        if (card1.dataset.matchGroup !== card2.dataset.matchGroup) {
+            return false;
+        }
+        
+        const proficiency = this.gameController.currentProficiency;
+        
+        // Easy level - just match word with correct spelling
+        if (proficiency === 'easy') {
+            const isWordSpellingPair = 
+                (card1.dataset.isWord === "true" && card2.dataset.isSpelling === "true") ||
+                (card1.dataset.isSpelling === "true" && card2.dataset.isWord === "true");
+                
+            return isWordSpellingPair;
+        }
+        
+        // Warning level - match confused word with its meaning
+        else if (proficiency === 'warning') {
+            const isWordMeaningPair = 
+                (card1.dataset.isWord === "true" && card2.dataset.isMeaning === "true") ||
+                (card1.dataset.isMeaning === "true" && card2.dataset.isWord === "true");
+                
+            return isWordMeaningPair;
+        }
+        
+        // Danger level - match different types (word/spelling/meaning)
+        else if (proficiency === 'danger') {
+            // Make sure we're matching different types
+            const card1Type = this.getCardType(card1);
+            const card2Type = this.getCardType(card2);
+            
+            return card1Type !== card2Type;
+        }
+        
+        return false;
+    }
+    
+    // Helper to determine card type
+    getCardType(card) {
+        if (card.dataset.isWord === "true") return "word";
+        if (card.dataset.isSpelling === "true") return "spelling";
+        if (card.dataset.isMeaning === "true") return "meaning";
+        return "unknown";
+    }
+    
+    // Remove event handlers - fixed to use stored references
     removeCardHandlers(card, mode) {
-        switch (mode) {
-            case 'easy':
-                card.removeEventListener('click', this.flipCardEasy);
-                break;
-            case 'warning':
-                card.removeEventListener('click', this.flipCardWarning);
-                break;
-            case 'danger':
-                card.removeEventListener('click', this.flipCardDanger);
-                break;
-            case 'multiname':
-                card.removeEventListener('click', this.flipCardMultiName);
-                break;
+        const handlerInfo = this.eventHandlers.get(card);
+        if (handlerInfo && handlerInfo.handler) {
+            card.removeEventListener('click', handlerInfo.handler);
+            this.eventHandlers.delete(card);
         }
     }
     
-    // Disable matched cards (easy mode)
+    // Disable matched cards (easy mode) - improved
     disableCards() {
         this.removeCardHandlers(this.gameController.firstCard, 'easy');
         this.removeCardHandlers(this.gameController.secondCard, 'easy');
+        
+        // Mark cards as matched
+        this.gameController.firstCard.classList.add('matched');
+        this.gameController.secondCard.classList.add('matched');
+        
+        // Award points for match
+        this.gameController.handleSuccessfulMatch();
         
         this.resetBoardState();
     }
@@ -357,6 +506,9 @@ class GameModes {
     disableMultiNameCards() {
         this.removeCardHandlers(this.gameController.firstCard, 'multiname');
         this.removeCardHandlers(this.gameController.secondCard, 'multiname');
+        
+        // Award points for match
+        this.gameController.handleSuccessfulMatch();
         
         this.resetBoardState();
     }
@@ -373,6 +525,9 @@ class GameModes {
         this.removeCardHandlers(this.gameController.firstCard, 'warning');
         this.removeCardHandlers(this.gameController.secondCard, 'warning');
         this.removeCardHandlers(this.gameController.thirdCard, 'warning');
+        
+        // Award points for match
+        this.gameController.handleSuccessfulMatch();
         
         this.resetWarningBoardState();
     }
@@ -430,32 +585,72 @@ class GameModes {
                 return false;
             }
             
-            // Need one result, one operand, and one operator
-            const hasResult = [card1, card2, card3].some(card => card.dataset.isResult === "true");
-            const hasOperand = [card1, card2, card3].some(card => card.dataset.isOperand === "true");
-            const hasOperator = [card1, card2, card3].some(card => card.dataset.isOperator === "true");
+            // Collect all cards and find their roles
+            const cards = [card1, card2, card3];
+            const result = cards.find(c => c.dataset.isResult === "true");
+            const operand = cards.find(c => c.dataset.isOperand === "true");
+            const operator = cards.find(c => c.dataset.isOperator === "true");
             
-            return hasResult && hasOperand && hasOperator;
+            // Ensure we have one of each type
+            if (!result || !operand || !operator) {
+                return false;
+            }
+            
+            // Actually validate the arithmetic operation
+            const resultVal = parseInt(result.dataset.value);
+            const operandVal = parseInt(operand.dataset.value);
+            const op = operator.dataset.value;
+            
+            // Extract the operand values based on operation
+            let expectedResult;
+            switch(op) {
+                case '+':
+                    // We don't know the other operand, but we can check if result > operand
+                    return resultVal > operandVal;
+                case '-':
+                    // We don't know which operand is which, but result should be positive
+                    return resultVal > 0 && operandVal > resultVal;
+                case '×':
+                    // Result should be a multiple of operand
+                    return resultVal % operandVal === 0;
+                case '÷':
+                    // Result should divide evenly into operand
+                    return operandVal % resultVal === 0;
+                default:
+                    return false;
+            }
         }
         
         // For easy level (addition)
         if (matchOp === 'add') {
             // One card must be the sum and one must be an addend
-            const isAdditionMatch = 
-                (card1.dataset.isSum === "true" && card2.dataset.isAddend === "true") ||
-                (card1.dataset.isAddend === "true" && card2.dataset.isSum === "true");
+            if ((card1.dataset.isSum === "true" && card2.dataset.isAddend === "true") ||
+                (card1.dataset.isAddend === "true" && card2.dataset.isSum === "true")) {
                 
-            return isAdditionMatch;
+                // Actually validate that the numbers add up correctly
+                const sum = parseInt(card1.dataset.isSum === "true" ? card1.dataset.value : card2.dataset.value);
+                const addend = parseInt(card1.dataset.isAddend === "true" ? card1.dataset.value : card2.dataset.value);
+                
+                // For addition, we're only checking if addend < sum (since we need two addends)
+                return addend < sum;
+            }
+            return false;
         }
         
         // For warning level (multiplication)
         if (matchOp === 'multiply') {
             // One card must be the product and one must be a factor
-            const isMultiplicationMatch = 
-                (card1.dataset.isProduct === "true" && card2.dataset.isFactor === "true") ||
-                (card1.dataset.isFactor === "true" && card2.dataset.isProduct === "true");
+            if ((card1.dataset.isProduct === "true" && card2.dataset.isFactor === "true") ||
+                (card1.dataset.isFactor === "true" && card2.dataset.isProduct === "true")) {
                 
-            return isMultiplicationMatch;
+                // Actually validate the multiplication
+                const product = parseInt(card1.dataset.isProduct === "true" ? card1.dataset.value : card2.dataset.value);
+                const factor = parseInt(card1.dataset.isFactor === "true" ? card1.dataset.value : card2.dataset.value);
+                
+                // Check if factor divides product evenly
+                return product % factor === 0;
+            }
+            return false;
         }
         
         return false;

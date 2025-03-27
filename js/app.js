@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create and initialize the game controller
     const gameController = new GameController();
     
-    // Extra initialization if needed
+    // Store reference for debugging
+    window._gameController = gameController;
+    
     console.log("Memory Game initialized!");
 });

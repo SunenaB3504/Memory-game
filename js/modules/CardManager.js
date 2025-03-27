@@ -14,6 +14,20 @@ class CardManager {
             return this.createMultiNameCards(theme, pairsCount);
         }
         
+        // Handle word-meaning matching
+        if (theme === 'englishWords' || theme === 'hindiWords') {
+            const proficiency = document.getElementById('proficiency').value;
+            
+            switch(proficiency) {
+                case 'easy':
+                    return this.createWordMeaningCards(theme, pairsCount, 'easy');
+                case 'warning':
+                    return this.createWordMeaningCards(theme, pairsCount, 'warning');
+                case 'danger':
+                    return this.createWordMeaningCards(theme, pairsCount, 'danger');
+            }
+        }
+        
         // Special handling for 'numbers' theme with different proficiency levels
         if (theme === 'numbers') {
             const proficiency = document.getElementById('proficiency').value;
@@ -26,6 +40,20 @@ class CardManager {
             }
         }
         
+        // Handle english spellings theme
+        if (theme === 'englishSpellings') {
+            const proficiency = document.getElementById('proficiency').value;
+            
+            switch(proficiency) {
+                case 'easy':
+                    return this.createSpellingCards(pairsCount);
+                case 'warning':
+                    return this.createConfusedWordsCards(pairsCount);
+                case 'danger':
+                    return this.createSpellingWithMeaningCards(pairsCount);
+            }
+        }
+        
         // Create standard pairs
         const selectedImages = [...themes[theme]]
             .sort(() => 0.5 - Math.random())
@@ -34,6 +62,131 @@ class CardManager {
         const cardPairsArray = [...selectedImages, ...selectedImages];
         
         return cardPairsArray.sort(() => 0.5 - Math.random());
+    }
+    
+    // Create cards for word-to-meaning matching
+    createWordMeaningCards(theme, pairsCount, proficiency) {
+        const cards = [];
+        
+        // Select appropriate theme with meanings
+        const themeWithMeanings = theme === 'englishWords' ? 
+            themes.englishWordsWithMeanings : themes.hindiWordsWithMeanings;
+        
+        // Shuffle and select items
+        const selectedItems = [...themeWithMeanings]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, Math.min(pairsCount, themeWithMeanings.length));
+        
+        if (proficiency === 'easy') {
+            // Easy: Direct word-to-meaning matching (one meaning per word)
+            selectedItems.forEach((item, index) => {
+                // Add word card
+                cards.push({
+                    id: `word-${index}`,
+                    display: item.word,
+                    type: 'word',
+                    matchGroup: `group-${index}`,
+                    isWord: true,
+                    isMeaning: false,
+                    matchType: 'word-meaning'
+                });
+                
+                // Add meaning card (first meaning only for Easy level)
+                cards.push({
+                    id: `meaning-${index}`,
+                    display: item.meanings[0],
+                    type: 'meaning',
+                    matchGroup: `group-${index}`,
+                    isWord: false,
+                    isMeaning: true,
+                    matchType: 'word-meaning'
+                });
+            });
+        } 
+        else if (proficiency === 'warning') {
+            // Warning: Each word has multiple meanings
+            selectedItems.forEach((item, index) => {
+                // Add word card
+                cards.push({
+                    id: `word-${index}`,
+                    display: item.word,
+                    type: 'word',
+                    matchGroup: `group-${index}`,
+                    isWord: true,
+                    isMeaning: false,
+                    matchType: 'word-meaning'
+                });
+                
+                // Add both meanings
+                item.meanings.forEach((meaning, mIndex) => {
+                    cards.push({
+                        id: `meaning-${index}-${mIndex}`,
+                        display: meaning,
+                        type: 'meaning',
+                        matchGroup: `group-${index}`,
+                        isWord: false,
+                        isMeaning: true,
+                        meaningIndex: mIndex,
+                        matchType: 'word-meaning'
+                    });
+                });
+            });
+        }
+        else if (proficiency === 'danger') {
+            // Danger: Multiple related words and meanings to match
+            // Group words into categories (for this demo, we'll create artificial categories)
+            const categories = ['Nature', 'Animals', 'Actions', 'Objects'];
+            
+            // Create cards with category grouping
+            let categoryIndex = 0;
+            for (let i = 0; i < Math.min(4, pairsCount); i++) {
+                // Select 2-3 words for this category
+                const categoryWords = selectedItems.slice(i*3, i*3 + 3);
+                if (categoryWords.length === 0) continue;
+                
+                // Create a category card
+                cards.push({
+                    id: `category-${i}`,
+                    display: categories[i % categories.length],
+                    type: 'category',
+                    matchGroup: `category-${i}`,
+                    isCategory: true,
+                    isWord: false,
+                    isMeaning: false,
+                    matchType: 'word-meaning'
+                });
+                
+                // Create word and meaning cards for this category
+                categoryWords.forEach((item, wordIndex) => {
+                    // Add word card
+                    cards.push({
+                        id: `word-${categoryIndex}-${wordIndex}`,
+                        display: item.word,
+                        type: 'word',
+                        matchGroup: `category-${i}`,
+                        isWord: true,
+                        isMeaning: false,
+                        categoryIndex: i,
+                        matchType: 'word-meaning'
+                    });
+                    
+                    // Add first meaning
+                    cards.push({
+                        id: `meaning-${categoryIndex}-${wordIndex}`,
+                        display: item.meanings[0],
+                        type: 'meaning',
+                        matchGroup: `category-${i}`,
+                        isWord: false,
+                        isMeaning: true,
+                        categoryIndex: i,
+                        matchType: 'word-meaning'
+                    });
+                });
+                categoryIndex++;
+            }
+        }
+        
+        return cards.sort(() => 0.5 - Math.random());
     }
     
     // Create cards for number addition matching (Easy proficiency level)
@@ -54,6 +207,10 @@ class CardManager {
             const addend1 = Math.floor(Math.random() * (sum - 1)) + 1;
             const addend2 = sum - addend1;
             
+            // Ensure we don't have addend1 === addend2 (boring matches)
+            const finalAddend1 = addend1 === addend2 ? addend1 + 1 : addend1;
+            const finalAddend2 = sum - finalAddend1;
+            
             // Create the sum card
             cards.push({
                 id: `sum-${index}`,
@@ -63,16 +220,19 @@ class CardManager {
                 value: sum,
                 isSum: true,
                 isAddend: false,
-                matchOp: 'add'
+                matchOp: 'add',
+                // Store both addends for validation
+                addend1: finalAddend1,
+                addend2: finalAddend2
             });
             
             // Create the first addend card
             cards.push({
                 id: `addend1-${index}`,
-                display: `${addend1}`,
+                display: `${finalAddend1}`,
                 type: 'number',
                 matchGroup: `group-${index}`,
-                value: addend1,
+                value: finalAddend1,
                 isSum: false,
                 isAddend: true,
                 matchOp: 'add'
@@ -81,10 +241,10 @@ class CardManager {
             // Create the second addend card
             cards.push({
                 id: `addend2-${index}`,
-                display: `${addend2}`,
+                display: `${finalAddend2}`,
                 type: 'number',
                 matchGroup: `group-${index}`,
-                value: addend2,
+                value: finalAddend2,
                 isSum: false,
                 isAddend: true,
                 matchOp: 'add'
@@ -409,7 +569,7 @@ class CardManager {
                 nameIndex: 0
             });
             
-            // Add second name card
+            // Add second name card - fixed missing code
             cards.push({
                 id: `name2-${index}`,
                 display: item.names[1],
@@ -418,6 +578,145 @@ class CardManager {
                 isEmoji: false,
                 isName: true,
                 nameIndex: 1
+            });
+        });
+        
+        return cards.sort(() => 0.5 - Math.random());
+    }
+    
+    // Create cards for basic spelling matches (Easy level)
+    createSpellingCards(pairsCount) {
+        const cards = [];
+        const spellings = [...themes.englishSpellings]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, pairsCount);
+        
+        // Create word and correct spelling pairs
+        spellings.forEach((item, index) => {
+            // Add word card
+            cards.push({
+                id: `word-${index}`,
+                display: item.word,
+                type: 'spelling-word',
+                matchGroup: `group-${index}`,
+                isWord: true,
+                isSpelling: false,
+                matchType: 'spelling'
+            });
+            
+            // Add correct spelling card
+            cards.push({
+                id: `spelling-${index}`,
+                display: item.correctSpelling,
+                type: 'spelling-correct',
+                matchGroup: `group-${index}`,
+                isWord: false,
+                isSpelling: true,
+                matchType: 'spelling'
+            });
+        });
+        
+        return cards.sort(() => 0.5 - Math.random());
+    }
+    
+    // Create cards for confused words (Warning level)
+    createConfusedWordsCards(pairsCount) {
+        const cards = [];
+        const confusedWords = [...themes.confusedWords]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, Math.min(pairsCount, themes.confusedWords.length));
+        
+        confusedWords.forEach((item, index) => {
+            // First word card
+            cards.push({
+                id: `word1-${index}`,
+                display: item.word,
+                type: 'spelling-word',
+                matchGroup: `group-${index}-a`,
+                isWord: true,
+                isMeaning: false,
+                matchType: 'confused-word'
+            });
+            
+            // First meaning card
+            cards.push({
+                id: `meaning1-${index}`,
+                display: item.meaning,
+                type: 'spelling-meaning',
+                matchGroup: `group-${index}-a`,
+                isWord: false,
+                isMeaning: true,
+                matchType: 'confused-word'
+            });
+            
+            // Second word card (confused with)
+            cards.push({
+                id: `word2-${index}`,
+                display: item.confusedWith,
+                type: 'spelling-word',
+                matchGroup: `group-${index}-b`,
+                isWord: true,
+                isMeaning: false,
+                matchType: 'confused-word'
+            });
+            
+            // Second meaning card
+            cards.push({
+                id: `meaning2-${index}`,
+                display: item.confusedMeaning,
+                type: 'spelling-meaning',
+                matchGroup: `group-${index}-b`,
+                isWord: false,
+                isMeaning: true,
+                matchType: 'confused-word'
+            });
+        });
+        
+        return cards.sort(() => 0.5 - Math.random());
+    }
+    
+    // Create spelling cards with meanings (Danger level)
+    createSpellingWithMeaningCards(pairsCount) {
+        const cards = [];
+        const spellings = [...themes.englishSpellingsWithMeanings]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, Math.min(pairsCount, themes.englishSpellingsWithMeanings.length));
+        
+        spellings.forEach((item, index) => {
+            // Word card
+            cards.push({
+                id: `word-${index}`,
+                display: item.word,
+                type: 'spelling-word',
+                matchGroup: `group-${index}`,
+                isWord: true,
+                isSpelling: false,
+                isMeaning: false,
+                matchType: 'spelling-meaning'
+            });
+            
+            // Spelling card
+            cards.push({
+                id: `spelling-${index}`,
+                display: item.correctSpelling,
+                type: 'spelling-correct',
+                matchGroup: `group-${index}`,
+                isWord: false,
+                isSpelling: true,
+                isMeaning: false,
+                matchType: 'spelling-meaning'
+            });
+            
+            // Meaning card
+            cards.push({
+                id: `meaning-${index}`,
+                display: item.meaning,
+                type: 'spelling-meaning',
+                matchGroup: `group-${index}`,
+                isWord: false,
+                isSpelling: false, 
+                isMeaning: true,
+                matchType: 'spelling-meaning'
             });
         });
         
