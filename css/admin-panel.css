@@ -1,4 +1,4 @@
-/* Admin panel styles */
+/* Admin panel styles - Updated for Nia's theme */
 
 .admin-toggle {
     position: fixed;
@@ -17,10 +17,11 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     transition: all 0.3s ease;
+    border: 2px solid #ffc107;
 }
 
 .admin-toggle:hover {
-    transform: scale(1.1);
+    transform: scale(1.1) rotate(20deg);
     background-color: #7b1fa2;
 }
 
@@ -32,27 +33,29 @@
     max-height: 80vh;
     background-color: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+    border-radius: 20px;
     z-index: 1100;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border: 3px solid #ffc107;
 }
 
 .admin-panel-header {
-    background-color: #9c27b0;
+    background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
     color: white;
-    padding: 12px 15px;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: move;
+    font-family: 'Nunito', sans-serif;
 }
 
 .admin-panel-header h3 {
     margin: 0;
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .admin-close-btn {
@@ -66,13 +69,13 @@
 }
 
 .admin-panel-content {
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
     max-height: calc(80vh - 120px);
 }
 
 .admin-section {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border-bottom: 1px solid #eee;
     padding-bottom: 20px;
 }
@@ -86,18 +89,20 @@
     color: #9c27b0;
     margin-top: 0;
     margin-bottom: 15px;
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
 }
 
 .admin-section h5 {
     color: #666;
     margin: 15px 0 10px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
 }
 
 .input-group {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     display: flex;
     flex-direction: column;
 }
@@ -109,26 +114,29 @@
 }
 
 .input-group input {
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 10px;
+    border: 2px solid #ba68c8;
+    border-radius: 10px;
     font-size: 14px;
+    transition: all 0.2s;
 }
 
 .input-group input:focus {
     border-color: #9c27b0;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.2);
+    box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.2);
 }
 
 .checkbox-group {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .checkbox-group input {
-    margin-right: 8px;
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
 }
 
 .checkbox-group label {
@@ -138,7 +146,7 @@
 }
 
 .admin-panel-footer {
-    padding: 12px 15px;
+    padding: 15px;
     background-color: #f5f0ff;
     display: flex;
     justify-content: flex-end;
@@ -147,22 +155,29 @@
 }
 
 .admin-save-btn, .admin-reset-btn, .admin-add-btn {
-    padding: 8px 15px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 50px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 500;
-    transition: background-color 0.2s;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
 .admin-save-btn {
-    background-color: #9c27b0;
-    color: white;
+    background-color: #ffc107;
+    color: #7b1fa2;
+    box-shadow: 0 4px 0 #e6b00e;
 }
 
 .admin-save-btn:hover {
-    background-color: #7b1fa2;
+    background-color: #ffca28;
+    transform: translateY(-2px);
+}
+
+.admin-save-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #e6b00e;
 }
 
 .admin-reset-btn {
@@ -175,17 +190,24 @@
 }
 
 .admin-add-btn {
-    background-color: #4caf50;
+    background-color: #9c27b0;
     color: white;
     margin-top: 10px;
+    box-shadow: 0 4px 0 #7b1fa2;
 }
 
 .admin-add-btn:hover {
-    background-color: #388e3c;
+    background-color: #ba68c8;
+    transform: translateY(-2px);
+}
+
+.admin-add-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #7b1fa2;
 }
 
 .events-list {
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .event-item {
@@ -193,20 +215,27 @@
     justify-content: space-between;
     align-items: center;
     background-color: #f9f9f9;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border-left: 3px solid #9c27b0;
+    transition: all 0.2s;
+}
+
+.event-item:hover {
+    transform: translateX(5px);
+    background-color: #f0f0f0;
 }
 
 .event-info h5 {
     margin: 0 0 5px;
     color: #333;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .event-info p {
     margin: 0;
-    font-size: 12px;
+    font-size: 13px;
     color: #666;
 }
 
@@ -217,15 +246,16 @@
 
 .event-activate, .event-deactivate, .event-delete {
     border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
+    border-radius: 8px;
+    padding: 6px 12px;
     cursor: pointer;
     font-size: 12px;
+    font-weight: 600;
 }
 
 .event-activate {
-    background-color: #9c27b0;
-    color: white;
+    background-color: #ffc107;
+    color: #7b1fa2;
 }
 
 .event-deactivate {
@@ -243,18 +273,22 @@
     align-items: center;
     justify-content: center;
     padding: 0;
+    border-radius: 50%;
 }
 
 .add-event-form {
     margin-top: 15px;
     background-color: #f9f9f9;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 15px;
+    border-top: 3px solid #ffc107;
 }
 
 .no-events {
     color: #666;
     font-style: italic;
     text-align: center;
-    padding: 10px;
+    padding: 15px;
+    background-color: #f8f0ff;
+    border-radius: 10px;
 }

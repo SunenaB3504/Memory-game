@@ -357,7 +357,7 @@ class UIController {
     // Show points earned animation
     showPointsEarned(points, x, y) {
         const pointsElement = document.createElement('div');
-        pointsElement.className = 'points-earned';
+        pointsElement.className = 'points-earned animate__animated animate__bounceIn';
         pointsElement.textContent = `+${points}`;
         
         // Position near the matched cards
@@ -370,23 +370,28 @@ class UIController {
         
         // Animate upward and fade out
         setTimeout(() => {
-            pointsElement.style.transform = 'translateY(-50px)';
-            pointsElement.style.opacity = '0';
+            pointsElement.classList.remove('animate__bounceIn');
+            pointsElement.classList.add('animate__fadeOutUp');
             
             // Remove element after animation
             setTimeout(() => {
                 pointsElement.remove();
             }, 1000);
-        }, 10);
+        }, 500);
+        
+        // Add encouragement messages randomly
+        if (points > 15 && Math.random() > 0.5) {
+            this.showEncouragement(x, y + 40);
+        }
     }
     
     // Display game completion summary
     showGameSummary(results) {
         const summaryContainer = document.createElement('div');
-        summaryContainer.className = 'game-summary';
+        summaryContainer.className = 'game-summary animate__animated animate__bounceIn';
         
         let content = `
-            <h3>Game Complete!</h3>
+            <h3>Awesome Job, Nia! 🎉</h3>
             <div class="summary-points">
                 <div class="row">
                     <div class="col">Match Points:</div>
@@ -407,7 +412,7 @@ class UIController {
             content += `
                 <div class="perfect-game">
                     <span class="badge badge-success">Perfect Game!</span>
-                    <p>You completed the game with minimum possible attempts!</p>
+                    <p>Wow! You completed the game with minimum possible attempts!</p>
                 </div>
             `;
         }
@@ -421,7 +426,7 @@ class UIController {
         // Add continue button
         const continueButton = document.createElement('button');
         continueButton.className = 'btn btn-primary mt-3';
-        continueButton.textContent = 'Continue';
+        continueButton.textContent = 'Keep Playing!';
         continueButton.onclick = () => {
             modalOverlay.classList.add('fade-out');
             setTimeout(() => {
@@ -432,6 +437,11 @@ class UIController {
         summaryContainer.appendChild(continueButton);
         modalOverlay.appendChild(summaryContainer);
         document.body.appendChild(modalOverlay);
+        
+        // Launch confetti celebration!
+        if (window.confetti) {
+            window.confetti.createConfetti();
+        }
     }
     
     // Update achievements display
@@ -513,5 +523,45 @@ class UIController {
             
             this.activeEventsContainer.appendChild(eventElement);
         });
+    }
+    
+    // Add a new method for showing encouraging messages
+    showEncouragement(x, y) {
+        const messages = [
+            "Great job, Nia! 👍",
+            "Awesome! 🤩",
+            "You're doing amazing! ⭐",
+            "Fantastic match! 🎯",
+            "Super smart! 🧠",
+            "Keep it up! 🔥",
+            "You're a star! 🌟",
+            "Incredible! 🎊"
+        ];
+        
+        const message = messages[Math.floor(Math.random() * messages.length)];
+        
+        const encourageElement = document.createElement('div');
+        encourageElement.className = 'encourage-message animate__animated animate__fadeIn';
+        encourageElement.textContent = message;
+        encourageElement.style.position = 'absolute';
+        encourageElement.style.left = `${x - 50}px`;
+        encourageElement.style.top = `${y}px`;
+        encourageElement.style.background = 'rgba(156, 39, 176, 0.1)';
+        encourageElement.style.padding = '5px 10px';
+        encourageElement.style.borderRadius = '10px';
+        encourageElement.style.color = '#9c27b0';
+        encourageElement.style.fontWeight = 'bold';
+        encourageElement.style.zIndex = '100';
+        
+        document.body.appendChild(encourageElement);
+        
+        setTimeout(() => {
+            encourageElement.classList.remove('animate__fadeIn');
+            encourageElement.classList.add('animate__fadeOut');
+            
+            setTimeout(() => {
+                encourageElement.remove();
+            }, 1000);
+        }, 1500);
     }
 }

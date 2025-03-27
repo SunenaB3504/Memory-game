@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Game</title>
+    <title>Nia's Memory Challenge</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/admin-panel.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Bubblegum+Sans&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Memory Game</h1>
+    <div class="container animate__animated animate__fadeIn">
+        <h1>Nia's Memory Challenge</h1>
         
         <!-- Points and Level Display -->
         <div class="points-container">
             <div class="points-row">
-                <div class="points-label">Game Points:</div>
+                <div class="points-label">✨ Game Points:</div>
                 <div class="points-value" id="currentPoints">0</div>
             </div>
             <div class="points-row">
-                <div class="points-label">Total Points:</div>
+                <div class="points-label">🌟 Total Points:</div>
                 <div class="points-value" id="totalPoints">0</div>
             </div>
             <div class="level-container">
@@ -32,46 +33,47 @@
         </div>
         
         <!-- Game Settings -->
-        <div id="settings">
+        <div id="settings" class="animate__animated animate__fadeIn animate__delay-1s">
+            <h3 class="text-center mb-4" style="color: #9c27b0; font-family: 'Bubblegum Sans', cursive;">Game Options</h3>
             <div class="settings-row">
                 <div class="form-group">
-                    <label for="theme">Theme:</label>
+                    <label for="theme">Choose Your Theme:</label>
                     <select id="theme" class="form-control">
-                        <option value="animals">Animals</option>
-                        <option value="cartoon">Cartoon Characters</option>
-                        <option value="fashion">Fashion</option>
+                        <option value="animals">Cute Animals</option>
+                        <option value="cartoon">Fun Cartoon Characters</option>
+                        <option value="fashion">Fashion & Style</option>
                         <option value="englishWords">English Words</option>
-                        <option value="englishSpellings">English Spellings</option>
-                        <option value="numbers">Numbers</option>
+                        <option value="englishSpellings">Spelling Challenge</option>
+                        <option value="numbers">Math Numbers</option>
                         <option value="hindiAlphabets">Hindi Alphabets</option>
                         <option value="hindiWords">Hindi Words</option>
-                        <option value="emojiToEnglish">Emoji to English</option>
-                        <option value="emojiToHindi">Emoji to Hindi</option>
-                        <option value="emojiToMultipleEnglish">Emoji to Multiple English Names</option>
-                        <option value="emojiToMultipleHindi">Emoji to Multiple Hindi Names</option>
+                        <option value="emojiToEnglish">Emoji Match - English</option>
+                        <option value="emojiToHindi">Emoji Match - Hindi</option>
+                        <option value="emojiToMultipleEnglish">Emoji Name Challenge</option>
+                        <option value="emojiToMultipleHindi">Hindi Emoji Challenge</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="proficiency">Proficiency:</label>
+                    <label for="proficiency">Difficulty Level:</label>
                     <select id="proficiency" class="form-control">
-                        <option value="easy">Easy</option>
-                        <option value="warning">Warning</option>
-                        <option value="danger">Danger</option>
+                        <option value="easy">Easy-Peasy</option>
+                        <option value="warning">Tricky</option>
+                        <option value="danger">Super Challenge</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="difficulty">Difficulty:</label>
+                    <label for="difficulty">Number of Cards:</label>
                     <select id="difficulty" class="form-control">
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
+                        <option value="easy">Just a Few</option>
+                        <option value="medium">Medium Bunch</option>
+                        <option value="hard">Lots of Cards</option>
                     </select>
                 </div>
             </div>
             
-            <button id="startGame" class="btn btn-primary">Start Game</button>
+            <button id="startGame" class="btn btn-primary animate__animated animate__pulse animate__infinite">Start Game!</button>
         </div>
         
         <!-- Current Events Display -->
@@ -88,20 +90,25 @@
         <!-- Score Display -->
         <div id="scoreDisplay">
             <div class="score-item">
-                <span class="score-label">Matches:</span>
+                <span class="score-label">Matches</span>
                 <span id="matches" class="score-value">0</span>
             </div>
             <div class="score-item">
-                <span class="score-label">Attempts:</span>
+                <span class="score-label">Attempts</span>
                 <span id="attempts" class="score-value">0</span>
             </div>
         </div>
         
         <!-- Achievements Section -->
-        <div class="achievements-section">
-            <h3>Achievements</h3>
-            <div id="achievements" class="achievements-container"></div>
+        <div class="achievements-section animate__animated animate__fadeIn animate__delay-2s">
+            <h3>Your Awesome Achievements</h3>
+            <div id="achievements" class="achievements-container">
+                <p class="text-muted">Complete games to earn cool achievements!</p>
+            </div>
         </div>
+        
+        <!-- Confetti Container for Celebrations -->
+        <div id="confetti-container" class="confetti"></div>
         
         <!-- Reward Notifications -->
         <div id="rewardMessage" class="reward-message-container"></div>
@@ -127,6 +134,9 @@
     
     <!-- Debug Tools -->
     <script src="js/debug-matching.js"></script>
+    
+    <!-- Fun Confetti -->
+    <script src="js/confetti.js"></script>
     
     <!-- Main App -->
     <script src="js/app.js"></script>
