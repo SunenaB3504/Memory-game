@@ -275,14 +275,14 @@ class PointsSystem {
     getAchievementDefinition(id) {
         const achievementDefinitions = [
             { id: 'first_match', name: 'First Steps', description: 'Complete your first match', points: 50, icon: '🎮' },
-            { id: 'perfect_game', name: 'Perfect Game', description: 'Complete a game without mistakes', points: 200, icon: '🏆' },
-            { id: 'speed_demon', name: 'Speed Demon', description: 'Complete a game in under 30 seconds', points: 150, icon: '⚡' },
+            { id: 'perfect_game', name: 'Perfect Game', description: 'Complete a game without mistakes', points: 20, icon: '🏆' },
+            { id: 'speed_demon', name: 'Speed Demon', description: 'Complete a game in under 30 seconds', points: 15, icon: '⚡' },
             { id: 'math_whiz', name: 'Math Whiz', description: 'Complete the numbers theme on hard difficulty', points: 100, icon: '🧮' },
             { id: 'linguist', name: 'Linguist', description: 'Complete both Hindi and English word themes', points: 100, icon: '🔤' },
             { id: 'spelling_bee', name: 'Spelling Bee', description: 'Complete the English Spellings theme', points: 100, icon: '🐝' },
             { id: 'streak_5', name: 'On Fire', description: 'Get 5 matches in a row', points: 75, icon: '🔥' },
             { id: 'streak_10', name: 'Unstoppable', description: 'Get 10 matches in a row', points: 150, icon: '⚡' },
-            { id: 'master', name: 'Memory Master', description: 'Earn 1000 total points', points: 300, icon: '👑' }
+            { id: 'master', name: 'Memory Master', description: 'Earn 1000 total points', points: 30, icon: '👑' }
         ];
         
         return achievementDefinitions.find(a => a.id === id);
