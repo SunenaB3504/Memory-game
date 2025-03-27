@@ -17,6 +17,9 @@ class UIController {
         this.levelProgressBar = document.getElementById('levelProgress');
         this.achievementsContainer = document.getElementById('achievements');
         this.rewardMessageContainer = document.getElementById('rewardMessage');
+        
+        // Active events container
+        this.activeEventsContainer = document.getElementById('active-events');
     }
     
     // Reset game container and boards
@@ -486,5 +489,29 @@ class UIController {
         `;
         
         this.showRewardMessage(achievementNotification, 'primary');
+    }
+    
+    // Update active events display
+    updateActiveEvents(events = []) {
+        if (!this.activeEventsContainer) return;
+        
+        // Clear current events
+        this.activeEventsContainer.innerHTML = '';
+        
+        if (events.length === 0) return;
+        
+        // Add each active event
+        events.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = 'active-event';
+            
+            eventElement.innerHTML = `
+                <span class="event-icon">🎉</span>
+                <span class="event-name">${event.name}</span>
+                <span class="multiplier">x${event.pointMultiplier}</span>
+            `;
+            
+            this.activeEventsContainer.appendChild(eventElement);
+        });
     }
 }
