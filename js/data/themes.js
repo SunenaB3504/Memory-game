@@ -418,5 +418,44 @@ const themes = {
         { word: 'Patience', meaning: 'Ability to wait calmly', confusedWith: 'Patients', confusedMeaning: 'People receiving medical care' },
         { word: 'Peace', meaning: 'Freedom from disturbance', confusedWith: 'Piece', confusedMeaning: 'A portion or fragment' },
         { word: 'Pole', meaning: 'Long, slender piece of wood', confusedWith: 'Poll', confusedMeaning: 'Survey of opinion' }
-    ]
+    ],
+
+    // Add numberExpressions to themes
+    numberExpressions: {
+        name: "Number Expressions",
+        pairs: [
+            { number: "10", expression: "7 + 3" },
+            { number: "8", expression: "5 + 3" },
+            { number: "12", expression: "6 + 6" },
+            { number: "9", expression: "12 - 3" },
+            { number: "7", expression: "10 - 3" },
+            { number: "5", expression: "8 - 3" },
+            { number: "4", expression: "2 + 2" },
+            { number: "6", expression: "9 - 3" },
+            { number: "15", expression: "10 + 5" },
+            { number: "11", expression: "5 + 6" },
+            { number: "14", expression: "7 × 2" },
+            { number: "16", expression: "8 × 2" },
+            { number: "20", expression: "4 × 5" },
+            { number: "25", expression: "5 × 5" },
+            { number: "18", expression: "20 - 2" },
+            { number: "13", expression: "26 ÷ 2" }
+        ]
+    }
 };
+
+// Number expression pairs for math matching
+const numberExpressionPairs = [
+    { number: "10", expression: "7 + 3" },
+    { number: "8", expression: "5 + 3" },
+    { number: "12", expression: "6 + 6" },
+    { number: "9", expression: "12 - 3" },
+    { number: "7", expression: "10 - 3" },
+    { number: "5", expression: "8 - 3" },
+    { number: "4", expression: "2 + 2" },
+    { number: "6", expression: "9 - 3" },
+    { number: "15", expression: "10 + 5" },
+    { number: "11", expression: "5 + 6" },
+    { number: "14", expression: "7 × 2" },
+    { number: "16", expression: "8 × 2" }
+];

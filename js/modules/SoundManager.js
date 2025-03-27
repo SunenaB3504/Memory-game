@@ -5,16 +5,12 @@
 class SoundManager {
     constructor() {
         // Initialize sound effects
-        this.sounds = {
-            correct: new Audio('sounds/correct.mp3'),
-            incorrect: new Audio('sounds/incorrect.mp3'),
-            success: new Audio('sounds/success.mp3'),
-            click: new Audio('sounds/click.mp3')
-        };
+        this.sounds = {};
+        this.soundsLoaded = false;
         
         // Initialize background music
-        this.backgroundMusic = new Audio('sounds/background.mp3');
-        this.backgroundMusic.loop = true;
+        this.backgroundMusic = null;
+        this.musicLoaded = false;
         
         // Set default volumes
         this.musicVolume = parseFloat(localStorage.getItem('musicVolume') || 0.3); // Default to 30%
@@ -24,62 +20,202 @@ class SoundManager {
         this.muted = localStorage.getItem('soundMuted') === 'true';
         this.musicMuted = localStorage.getItem('musicMuted') === 'true';
         
-        // Apply volumes
-        this.backgroundMusic.volume = this.musicMuted ? 0 : this.musicVolume;
-        Object.values(this.sounds).forEach(sound => {
-            sound.volume = this.muted ? 0 : this.effectsVolume;
-        });
+        // Initialization
+        this.loadSounds();
         
         // Create UI controls
         this.createMuteButton();
         this.createMusicControls();
         
+        // Add play music button that's more visible
+        this.createPlayMusicButton();
+        
         // Auto-play music after user interaction (if not muted)
         document.addEventListener('click', () => {
-            if (!this.musicMuted && this.backgroundMusic.paused) {
+            if (!this.musicMuted && this.backgroundMusic && this.backgroundMusic.paused) {
+                console.log("User clicked - attempting to play background music");
                 this.playBackgroundMusic();
             }
         }, { once: true });
     }
     
-    // Play a sound effect if not muted
-    play(soundName) {
-        if (this.muted) return;
+    // Load all sound assets
+    loadSounds() {
+        console.log("Loading sound assets...");
         
-        const sound = this.sounds[soundName];
-        if (sound) {
-            // Stop and reset the sound before playing (allows rapid triggering)
-            sound.pause();
-            sound.currentTime = 0;
+        // Load sound effects
+        const soundEffects = {
+            correct: 'sounds/correct.mp3',
+            incorrect: 'sounds/incorrect.mp3',
+            success: 'sounds/success.mp3',
+            click: 'sounds/click.mp3'
+        };
+        
+        // Check if sounds directory exists
+        this.checkResourceExists('sounds/').then(exists => {
+            if (!exists) {
+                console.warn("Sounds directory not found. Creating directory structure...");
+                this.createSoundDirectory();
+                return;
+            }
             
-            // Play the sound
-            sound.play().catch(error => {
-                console.warn(`Error playing sound ${soundName}:`, error);
-                // Many browsers require user interaction before playing audio
-                // This error is expected if user hasn't interacted yet
+            // Load each sound effect
+            Object.entries(soundEffects).forEach(([name, path]) => {
+                const sound = new Audio();
+                
+                // Add event listeners to track loading state
+                sound.addEventListener('canplaythrough', () => {
+                    console.log(`Sound loaded: ${name}`);
+                    this.sounds[name] = sound;
+                    
+                    // Check if all sounds are loaded
+                    if (Object.keys(this.sounds).length === Object.keys(soundEffects).length) {
+                        console.log("All sound effects loaded successfully");
+                        this.soundsLoaded = true;
+                    }
+                });
+                
+                sound.addEventListener('error', (e) => {
+                    console.warn(`Error loading sound ${name}:`, e);
+                });
+                
+                // Set initial volume
+                sound.volume = this.muted ? 0 : this.effectsVolume;
+                
+                // Load the sound
+                sound.src = path;
+                sound.load();
             });
+        });
+        
+        // Load background music
+        this.checkResourceExists('sounds/background.mp3').then(exists => {
+            if (!exists) {
+                console.warn("Background music file not found.");
+                return;
+            }
+            
+            this.backgroundMusic = new Audio('sounds/background.mp3');
+            this.backgroundMusic.loop = true;
+            this.backgroundMusic.volume = this.musicMuted ? 0 : this.musicVolume;
+            
+            this.backgroundMusic.addEventListener('canplaythrough', () => {
+                console.log("Background music loaded successfully");
+                this.musicLoaded = true;
+            });
+            
+            this.backgroundMusic.addEventListener('error', (e) => {
+                console.warn("Error loading background music:", e);
+            });
+            
+            this.backgroundMusic.addEventListener('play', () => {
+                console.log("Background music started playing");
+            });
+            
+            this.backgroundMusic.load();
+        });
+    }
+    
+    // Check if a resource exists
+    async checkResourceExists(url) {
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            return response.ok;
+        } catch (error) {
+            console.warn(`Error checking resource ${url}:`, error);
+            return false;
         }
     }
     
-    // Play background music
-    playBackgroundMusic() {
-        if (this.musicMuted) return;
+    // Create sound directory and placeholder files if missing
+    createSoundDirectory() {
+        console.log("Note: Please make sure a 'sounds' directory exists with the following audio files:");
+        console.log("- sounds/background.mp3 (background music)");
+        console.log("- sounds/correct.mp3 (correct match sound)");
+        console.log("- sounds/incorrect.mp3 (incorrect match sound)");
+        console.log("- sounds/success.mp3 (game completion sound)");
+        console.log("- sounds/click.mp3 (card click sound)");
         
-        this.backgroundMusic.play().catch(error => {
-            console.warn('Error playing background music:', error);
-            
-            // Set a flag to try again after user interaction
-            const retryPlayback = () => {
-                this.backgroundMusic.play().catch(e => console.warn('Retry failed:', e));
-                document.removeEventListener('click', retryPlayback);
-            };
-            document.addEventListener('click', retryPlayback);
-        });
+        // Create a simple placeholder audio object for each sound
+        this.sounds = {
+            correct: new Audio(),
+            incorrect: new Audio(),
+            success: new Audio(),
+            click: new Audio()
+        };
+        
+        this.backgroundMusic = new Audio();
+        this.backgroundMusic.loop = true;
+        
+        // Set to loaded to avoid errors
+        this.soundsLoaded = true;
+        this.musicLoaded = true;
+    }
+    
+    // Play a sound effect if not muted
+    play(soundName) {
+        if (this.muted || !this.soundsLoaded) return;
+        
+        const sound = this.sounds[soundName];
+        if (sound) {
+            try {
+                // Clone the audio to avoid playback issues with rapid sounds
+                const soundClone = sound.cloneNode();
+                soundClone.volume = this.muted ? 0 : this.effectsVolume;
+                
+                // Play with error handling
+                soundClone.play()
+                    .catch(error => {
+                        console.log(`Couldn't play ${soundName} sound:`, error.message);
+                    });
+            } catch (error) {
+                console.warn(`Error with sound ${soundName}:`, error);
+            }
+        }
+    }
+    
+    // Play background music with robust error handling
+    playBackgroundMusic() {
+        if (this.musicMuted || !this.musicLoaded || !this.backgroundMusic) return;
+        
+        console.log("Attempting to play background music...");
+        
+        // Set volume before playing
+        this.backgroundMusic.volume = this.musicVolume;
+        
+        // Play with proper error handling
+        const playPromise = this.backgroundMusic.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    console.log("Background music playing successfully");
+                    // Update button icon
+                    this.updateMusicButtonIcon();
+                })
+                .catch(error => {
+                    console.warn("Background music autoplay prevented:", error);
+                    
+                    // Show a message about needing user interaction
+                    this.showPlayMusicButton(true);
+                    
+                    // Update UI to show music is not playing
+                    this.musicMuted = true;
+                    this.updateMusicButtonIcon();
+                });
+        }
     }
     
     // Pause background music
     pauseBackgroundMusic() {
-        this.backgroundMusic.pause();
+        if (!this.backgroundMusic) return;
+        
+        try {
+            this.backgroundMusic.pause();
+            console.log("Background music paused");
+        } catch (error) {
+            console.warn("Error pausing background music:", error);
+        }
     }
     
     // Toggle mute state for sound effects
@@ -89,7 +225,7 @@ class SoundManager {
         
         // Update volumes
         Object.values(this.sounds).forEach(sound => {
-            sound.volume = this.muted ? 0 : this.effectsVolume;
+            if (sound) sound.volume = this.muted ? 0 : this.effectsVolume;
         });
         
         // Update button icon
@@ -116,7 +252,7 @@ class SoundManager {
         this.musicVolume = volume;
         localStorage.setItem('musicVolume', volume);
         
-        if (!this.musicMuted) {
+        if (!this.musicMuted && this.backgroundMusic) {
             this.backgroundMusic.volume = volume;
         }
     }
@@ -128,8 +264,74 @@ class SoundManager {
         
         if (!this.muted) {
             Object.values(this.sounds).forEach(sound => {
-                sound.volume = volume;
+                if (sound) sound.volume = volume;
             });
+        }
+    }
+    
+    // Create a prominent play music button for when autoplay fails
+    createPlayMusicButton() {
+        const button = document.createElement('button');
+        button.className = 'play-music-btn';
+        button.innerHTML = '🎵 Play Music';
+        button.setAttribute('title', 'Start Background Music');
+        
+        // Style the button
+        Object.assign(button.style, {
+            position: "fixed",
+            bottom: "240px",
+            right: "20px",
+            padding: "8px 15px",
+            borderRadius: "30px",
+            background: "linear-gradient(135deg, #ffc107 0%, #ffeb3b 100%)",
+            color: "#9c27b0",
+            border: "2px solid #9c27b0",
+            cursor: "pointer",
+            fontWeight: "bold",
+            boxShadow: "0 3px 5px rgba(0,0,0,0.2)",
+            zIndex: "1000",
+            display: "none", // Hidden by default
+            animation: "pulse-music 2s infinite",
+            transition: "all 0.3s"
+        });
+        
+        // Add hover effect
+        button.onmouseenter = () => {
+            button.style.transform = "scale(1.05)";
+        };
+        
+        button.onmouseleave = () => {
+            button.style.transform = "scale(1)";
+        };
+        
+        // Add click event
+        button.onclick = () => {
+            this.musicMuted = false;
+            localStorage.setItem('musicMuted', false);
+            this.playBackgroundMusic();
+            button.style.display = "none";
+        };
+        
+        // Add to document
+        document.body.appendChild(button);
+        this.playMusicButton = button;
+        
+        // Add animation style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse-music {
+                0% { box-shadow: 0 0 0 0 rgba(156, 39, 176, 0.7); }
+                70% { box-shadow: 0 0 0 10px rgba(156, 39, 176, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(156, 39, 176, 0); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Show or hide the play music button
+    showPlayMusicButton(show = true) {
+        if (this.playMusicButton) {
+            this.playMusicButton.style.display = show ? "block" : "none";
         }
     }
     

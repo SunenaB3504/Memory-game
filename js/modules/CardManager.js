@@ -9,6 +9,42 @@ class CardManager {
     createStandardCards(theme, pairsCount) {
         this.currentTheme = theme;
         
+        // Handle emoji-to-text matching themes
+        if (theme === 'emojiToEnglish' || theme === 'emojiToHindi') {
+            // Get appropriate theme data
+            const emojiData = themes[theme];
+            
+            // Shuffle and select pairs
+            const selectedEmojis = [...emojiData]
+                .sort(() => 0.5 - Math.random())
+                .slice(0, pairsCount);
+            
+            // Create card pairs (emoji + text)
+            const cards = [];
+            selectedEmojis.forEach((pair, index) => {
+                // Create emoji card
+                const emojiCard = {
+                    id: `emoji-${index}`,
+                    type: 'emoji',
+                    display: pair.emoji,
+                    value: `emoji-pair-${index}`
+                };
+                
+                // Create text card
+                const textCard = {
+                    id: `text-${index}`,
+                    type: 'text',
+                    display: pair.name,
+                    value: `emoji-pair-${index}`
+                };
+                
+                cards.push(emojiCard, textCard);
+            });
+            
+            // Shuffle all cards
+            return cards.sort(() => 0.5 - Math.random());
+        }
+        
         // Handle multi-name themes
         if (theme === 'emojiToMultipleEnglish' || theme === 'emojiToMultipleHindi') {
             return this.createMultiNameCards(theme, pairsCount);
@@ -586,140 +622,182 @@ class CardManager {
     
     // Create cards for basic spelling matches (Easy level)
     createSpellingCards(pairsCount) {
-        const cards = [];
-        const spellings = [...themes.englishSpellings]
-            .sort(() => 0.5 - Math.random())
+        const cardPairs = [];
+        const spellingData = [
+            { word: 'Achievement', correctSpelling: 'Achievement', wrongSpelling: 'Achievment' },
+            { word: 'Believe', correctSpelling: 'Believe', wrongSpelling: 'Beleive' },
+            { word: 'Calendar', correctSpelling: 'Calendar', wrongSpelling: 'Calender' },
+            { word: 'Definitely', correctSpelling: 'Definitely', wrongSpelling: 'Definately' },
+            { word: 'Embarrass', correctSpelling: 'Embarrass', wrongSpelling: 'Embarass' },
+            { word: 'Guarantee', correctSpelling: 'Guarantee', wrongSpelling: 'Guarentee' },
+            { word: 'Immediately', correctSpelling: 'Immediately', wrongSpelling: 'Immediatly' },
+            { word: 'Necessary', correctSpelling: 'Necessary', wrongSpelling: 'Neccessary' },
+            { word: 'Occurrence', correctSpelling: 'Occurrence', wrongSpelling: 'Occurence' },
+            { word: 'Parallel', correctSpelling: 'Parallel', wrongSpelling: 'Paralell' },
+            { word: 'Questionnaire', correctSpelling: 'Questionnaire', wrongSpelling: 'Questionaire' },
+            { word: 'Rhythm', correctSpelling: 'Rhythm', wrongSpelling: 'Rythm' },
+            { word: 'Seize', correctSpelling: 'Seize', wrongSpelling: 'Sieze' },
+            { word: 'Separate', correctSpelling: 'Separate', wrongSpelling: 'Seperate' },
+            { word: 'Successful', correctSpelling: 'Successful', wrongSpelling: 'Succesful' }
+        ];
+        
+        // Shuffle and select the data
+        const shuffledData = [...spellingData]
+            .sort(() => Math.random() - 0.5)
             .slice(0, pairsCount);
         
-        // Create word and correct spelling pairs
-        spellings.forEach((item, index) => {
-            // Add word card
-            cards.push({
-                id: `word-${index}`,
-                display: item.word,
+        // Create card pairs
+        shuffledData.forEach((item, index) => {
+            // Create the word card
+            const wordCard = {
+                id: `spelling-word-${index}`,
+                matchGroup: `spelling-${index}`,
+                display: `"${item.word}"`,
                 type: 'spelling-word',
-                matchGroup: `group-${index}`,
                 isWord: true,
                 isSpelling: false,
                 matchType: 'spelling'
-            });
+            };
             
-            // Add correct spelling card
-            cards.push({
-                id: `spelling-${index}`,
-                display: item.correctSpelling,
-                type: 'spelling-correct',
-                matchGroup: `group-${index}`,
+            // Create the spelling card (using wrong spelling)
+            const spellingCard = {
+                id: `spelling-incorrect-${index}`,
+                matchGroup: `spelling-${index}`,
+                display: item.wrongSpelling,  // Use wrong spelling here
+                type: 'spelling-correct',     // Keep type as 'spelling-correct' for matching logic
                 isWord: false,
                 isSpelling: true,
-                matchType: 'spelling'
-            });
+                matchType: 'spelling',
+                isWrong: true                 // Add flag to identify it's the wrong spelling
+            };
+            
+            // Add both cards to the pairs
+            cardPairs.push(wordCard, spellingCard);
         });
         
-        return cards.sort(() => 0.5 - Math.random());
+        // Shuffle all cards
+        return cardPairs.sort(() => Math.random() - 0.5);
     }
-    
+
     // Create cards for confused words (Warning level)
     createConfusedWordsCards(pairsCount) {
-        const cards = [];
-        const confusedWords = [...themes.confusedWords]
-            .sort(() => 0.5 - Math.random())
-            .slice(0, Math.min(pairsCount, themes.confusedWords.length));
+        const cardPairs = [];
+        const confusedWordsData = [
+            { word: 'Accept', meaning: 'To receive or take', confusedWith: 'Except' },
+            { word: 'Affect', meaning: 'To influence', confusedWith: 'Effect' },
+            { word: 'Weather', meaning: 'Climate conditions', confusedWith: 'Whether' },
+            { word: 'Principal', meaning: 'Main or head', confusedWith: 'Principle' },
+            { word: 'Stationary', meaning: 'Not moving', confusedWith: 'Stationery' },
+            { word: 'Complement', meaning: 'Complete or enhance', confusedWith: 'Compliment' },
+            { word: 'Desert', meaning: 'Arid land', confusedWith: 'Dessert' },
+            { word: 'Lose', meaning: 'To be defeated', confusedWith: 'Loose' },
+            { word: 'Than', meaning: 'Comparison', confusedWith: 'Then' },
+            { word: 'Their', meaning: 'Belonging to them', confusedWith: 'There' },
+            { word: 'Your', meaning: 'Belonging to you', confusedWith: 'You\'re' },
+            { word: 'Its', meaning: 'Belonging to it', confusedWith: 'It\'s' }
+        ];
         
-        confusedWords.forEach((item, index) => {
-            // First word card
-            cards.push({
-                id: `word1-${index}`,
+        // Shuffle and select the data
+        const shuffledData = [...confusedWordsData]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, pairsCount);
+        
+        // Create card pairs
+        shuffledData.forEach((item, index) => {
+            // Create the word card
+            const wordCard = {
+                id: `confused-word-${index}`,
+                matchGroup: `confused-${index}`,
                 display: item.word,
-                type: 'spelling-word',
-                matchGroup: `group-${index}-a`,
+                type: 'word',
                 isWord: true,
                 isMeaning: false,
                 matchType: 'confused-word'
-            });
+            };
             
-            // First meaning card
-            cards.push({
-                id: `meaning1-${index}`,
+            // Create the meaning card
+            const meaningCard = {
+                id: `confused-meaning-${index}`,
+                matchGroup: `confused-${index}`,
                 display: item.meaning,
-                type: 'spelling-meaning',
-                matchGroup: `group-${index}-a`,
+                type: 'meaning',
                 isWord: false,
                 isMeaning: true,
                 matchType: 'confused-word'
-            });
+            };
             
-            // Second word card (confused with)
-            cards.push({
-                id: `word2-${index}`,
-                display: item.confusedWith,
-                type: 'spelling-word',
-                matchGroup: `group-${index}-b`,
-                isWord: true,
-                isMeaning: false,
-                matchType: 'confused-word'
-            });
-            
-            // Second meaning card
-            cards.push({
-                id: `meaning2-${index}`,
-                display: item.confusedMeaning,
-                type: 'spelling-meaning',
-                matchGroup: `group-${index}-b`,
-                isWord: false,
-                isMeaning: true,
-                matchType: 'confused-word'
-            });
+            // Add both cards to the pairs
+            cardPairs.push(wordCard, meaningCard);
         });
         
-        return cards.sort(() => 0.5 - Math.random());
+        // Shuffle all cards
+        return cardPairs.sort(() => Math.random() - 0.5);
     }
-    
+
     // Create spelling cards with meanings (Danger level)
-    createSpellingWithMeaningCards(pairsCount) {
-        const cards = [];
-        const spellings = [...themes.englishSpellingsWithMeanings]
-            .sort(() => 0.5 - Math.random())
-            .slice(0, Math.min(pairsCount, themes.englishSpellingsWithMeanings.length));
+    createSpellingWithMeaningCards(groupsCount) {
+        const cardGroups = [];
+        const spellingData = [
+            { word: 'Achievement', correctSpelling: 'Achievement', meaning: 'Something accomplished successfully' },
+            { word: 'Believe', correctSpelling: 'Believe', meaning: 'To accept as true' },
+            { word: 'Calendar', correctSpelling: 'Calendar', meaning: 'System to organize days and dates' },
+            { word: 'Definitely', correctSpelling: 'Definitely', meaning: 'Without doubt' },
+            { word: 'Embarrass', correctSpelling: 'Embarrass', meaning: 'To cause someone to feel awkward' },
+            { word: 'Guarantee', correctSpelling: 'Guarantee', meaning: 'A formal promise or assurance' },
+            { word: 'Immediately', correctSpelling: 'Immediately', meaning: 'Without delay' },
+            { word: 'Necessary', correctSpelling: 'Necessary', meaning: 'Required or essential' },
+            { word: 'Occurrence', correctSpelling: 'Occurrence', meaning: 'An incident or event' },
+            { word: 'Separate', correctSpelling: 'Separate', meaning: 'To divide or move apart' }
+        ];
         
-        spellings.forEach((item, index) => {
-            // Word card
-            cards.push({
-                id: `word-${index}`,
-                display: item.word,
+        // Shuffle and select the data
+        const shuffledData = [...spellingData]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, groupsCount);
+        
+        // Create card groups (3 cards per group)
+        shuffledData.forEach((item, index) => {
+            // Create the word card
+            const wordCard = {
+                id: `spell-meaning-word-${index}`,
+                matchGroup: `spellmeaning-${index}`,
+                display: `"${item.word}"`,
                 type: 'spelling-word',
-                matchGroup: `group-${index}`,
                 isWord: true,
                 isSpelling: false,
                 isMeaning: false,
                 matchType: 'spelling-meaning'
-            });
+            };
             
-            // Spelling card
-            cards.push({
-                id: `spelling-${index}`,
+            // Create the correct spelling card
+            const spellingCard = {
+                id: `spell-meaning-spelling-${index}`,
+                matchGroup: `spellmeaning-${index}`,
                 display: item.correctSpelling,
                 type: 'spelling-correct',
-                matchGroup: `group-${index}`,
                 isWord: false,
                 isSpelling: true,
                 isMeaning: false,
                 matchType: 'spelling-meaning'
-            });
+            };
             
-            // Meaning card
-            cards.push({
-                id: `meaning-${index}`,
+            // Create the meaning card
+            const meaningCard = {
+                id: `spell-meaning-meaning-${index}`,
+                matchGroup: `spellmeaning-${index}`,
                 display: item.meaning,
                 type: 'spelling-meaning',
-                matchGroup: `group-${index}`,
                 isWord: false,
-                isSpelling: false, 
+                isSpelling: false,
                 isMeaning: true,
                 matchType: 'spelling-meaning'
-            });
+            };
+            
+            // Add all three cards to the groups
+            cardGroups.push(wordCard, spellingCard, meaningCard);
         });
         
-        return cards.sort(() => 0.5 - Math.random());
+        // Shuffle all cards
+        return cardGroups.sort(() => Math.random() - 0.5);
     }
 }

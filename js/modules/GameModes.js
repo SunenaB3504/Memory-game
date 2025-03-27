@@ -483,22 +483,32 @@ class GameModes {
         return false;
     }
     
-    // Check for spelling matches
+    // Check for spelling matches - Fixed implementation
     checkSpellingMatch(card1, card2) {
+        console.log("Checking spelling match between cards:");
+        console.log(`Card 1: ${card1.id || 'unknown'}, match group: ${card1.dataset.matchGroup}`);
+        console.log(`Card 2: ${card2.id || 'unknown'}, match group: ${card2.dataset.matchGroup}`);
+
         // Check if they're part of the same match group
         if (card1.dataset.matchGroup !== card2.dataset.matchGroup) {
+            console.log("FAILED: Cards are not in the same match group");
             return false;
         }
         
         const proficiency = this.gameController.currentProficiency;
         
-        // Easy level - just match word with correct spelling
+        // Easy level - match word with correct spelling
         if (proficiency === 'easy') {
             const isWordSpellingPair = 
                 (card1.dataset.isWord === "true" && card2.dataset.isSpelling === "true") ||
                 (card1.dataset.isSpelling === "true" && card2.dataset.isWord === "true");
                 
-            return isWordSpellingPair;
+            const result = isWordSpellingPair;
+            console.log(`Easy spelling match result: ${result ? 'MATCH' : 'NO MATCH'}`);
+            console.log(`Card 1: isWord=${card1.dataset.isWord}, isSpelling=${card1.dataset.isSpelling}`);
+            console.log(`Card 2: isWord=${card2.dataset.isWord}, isSpelling=${card2.dataset.isSpelling}`);
+            
+            return result;
         }
         
         // Warning level - match confused word with its meaning
@@ -507,7 +517,9 @@ class GameModes {
                 (card1.dataset.isWord === "true" && card2.dataset.isMeaning === "true") ||
                 (card1.dataset.isMeaning === "true" && card2.dataset.isWord === "true");
                 
-            return isWordMeaningPair;
+            const result = isWordMeaningPair;
+            console.log(`Warning spelling match result: ${result ? 'MATCH' : 'NO MATCH'}`);
+            return result;
         }
         
         // Danger level - match different types (word/spelling/meaning)
@@ -516,17 +528,32 @@ class GameModes {
             const card1Type = this.getCardType(card1);
             const card2Type = this.getCardType(card2);
             
-            return card1Type !== card2Type;
+            const result = card1Type !== card2Type && 
+                        card1Type !== "unknown" && 
+                        card2Type !== "unknown";
+                        
+            console.log(`Danger spelling match result: ${result ? 'MATCH' : 'NO MATCH'}`);
+            console.log(`Card 1 type: ${card1Type}, Card 2 type: ${card2Type}`);
+            
+            return result;
         }
         
         return false;
     }
     
-    // Helper to determine card type
+    // Helper to determine card type - improved with detailed logging
     getCardType(card) {
+        if (!card || !card.dataset) {
+            console.warn("Invalid card passed to getCardType:", card);
+            return "unknown";
+        }
+        
         if (card.dataset.isWord === "true") return "word";
         if (card.dataset.isSpelling === "true") return "spelling";
         if (card.dataset.isMeaning === "true") return "meaning";
+        
+        console.warn("Card has no recognized type attributes:", card);
+        console.log("Dataset:", JSON.stringify(card.dataset));
         return "unknown";
     }
     

@@ -28,6 +28,49 @@ class UIController {
         this.gameBoardSection2.innerHTML = '';
         this.gameBoardSection2.classList.add('hidden');
         this.gameContainer.className = '';
+        
+        // Clear any existing game info/instructions
+        this.clearGameInstructions();
+    }
+    
+    // Add a new method to clear game instructions
+    clearGameInstructions() {
+        // Remove any existing game-info elements
+        const existingInfos = document.querySelectorAll('.game-info');
+        existingInfos.forEach(info => info.remove());
+    }
+    
+    // Add a new method to show game instructions
+    showGameInstructions(text, board) {
+        // First clear any existing instructions
+        this.clearGameInstructions();
+        
+        // Create instruction element with improved styling
+        const infoElement = document.createElement('div');
+        infoElement.className = 'game-info animate__animated animate__fadeIn';
+        infoElement.innerHTML = `<p>${text}</p>`;
+        
+        // Add enhanced styling
+        Object.assign(infoElement.style, {
+            background: "linear-gradient(to right, #f8f0ff, #fff4e0)",
+            padding: "12px 20px",
+            borderRadius: "15px",
+            marginBottom: "20px",
+            textAlign: "center",
+            borderLeft: "5px solid #9c27b0",
+            boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+            fontFamily: "'Nunito', sans-serif",
+            fontWeight: "600",
+            fontSize: "16px",
+            color: "#7b1fa2"
+        });
+        
+        // Add before the specified board
+        if (board) {
+            board.before(infoElement);
+        }
+        
+        return infoElement;
     }
     
     // Update scores display
@@ -132,23 +175,42 @@ class UIController {
             cardElement.dataset.value = card.id;
             
             // Set data attributes for matching logic
-            if (card.isWord !== undefined) cardElement.dataset.isWord = String(card.isWord);
-            if (card.isSpelling !== undefined) cardElement.dataset.isSpelling = String(card.isSpelling);
-            if (card.isMeaning !== undefined) cardElement.dataset.isMeaning = String(card.isMeaning);
+            if (card.isWord !== undefined) {
+                cardElement.dataset.isWord = String(card.isWord);
+            }
+            if (card.isSpelling !== undefined) {
+                cardElement.dataset.isSpelling = String(card.isSpelling);
+            }
+            if (card.isMeaning !== undefined) {
+                cardElement.dataset.isMeaning = String(card.isMeaning);
+            }
             
             // Apply appropriate styling classes
             if (card.type === 'spelling-word') {
-                cardElement.classList.add('spelling-word-card');
-            } else if (card.type === 'spelling-correct') {
-                cardElement.classList.add('spelling-correct-card');
-            } else if (card.type === 'spelling-meaning') {
-                cardElement.classList.add('spelling-meaning-card');
+                cardElement.classList.add('word-card');
+            } else if (card.isWrong) {
+                // Add special styling for wrong spelling
+                cardElement.classList.add('wrong-spelling-card');
             }
             
-            cardElement.innerHTML = `
-                <div class="card-back">?</div>
-                <div class="card-front">${card.display}</div>
-            `;
+            // Create front and back elements
+            const backElement = document.createElement('div');
+            backElement.className = 'card-back';
+            backElement.textContent = '?';
+            
+            const frontElement = document.createElement('div');
+            frontElement.className = 'card-front';
+            
+            // Apply blue color to wrong spelling cards
+            if (card.isWrong) {
+                frontElement.style.color = '#2196F3';  // Blue color for wrong spelling
+                frontElement.innerHTML = `${card.display} <small style="display:block;font-size:10px;opacity:0.7;">(incorrect spelling)</small>`;
+            } else {
+                frontElement.textContent = card.display;
+            }
+            
+            cardElement.appendChild(backElement);
+            cardElement.appendChild(frontElement);
             
             cardElement.dataset.cardType = proficiency;
             return cardElement;
@@ -267,8 +329,8 @@ class UIController {
             cardElement.dataset.cardType = proficiency;
         } 
         // Handle emoji-to-name cards
-        else if (typeof card === 'object' && card.id) {
-            cardElement.dataset.value = card.id;
+        else if (typeof card === 'object' && card.id && card.value) {
+            cardElement.dataset.value = card.value;
             
             if (card.type === 'text') {
                 cardElement.classList.add('text-card');
@@ -276,15 +338,29 @@ class UIController {
                 if (this.themeSelect.value === 'emojiToHindi') {
                     cardElement.classList.add('hindi-text');
                 }
+            } else if (card.type === 'emoji') {
+                cardElement.classList.add('emoji-card');
             }
             
-            cardElement.innerHTML = `
-                <div class="card-back">?</div>
-                <div class="card-front">${card.display}</div>
-            `;
+            const backElement = document.createElement('div');
+            backElement.className = 'card-back';
+            backElement.textContent = '?';
             
-            cardElement.dataset.cardType = 'emoji-name';
-        } 
+            const frontElement = document.createElement('div');
+            frontElement.className = 'card-front';
+            frontElement.textContent = card.display;
+            
+            // Adjust font size for emoji cards
+            if (card.type === 'emoji') {
+                frontElement.style.fontSize = '40px';
+            }
+            
+            cardElement.appendChild(backElement);
+            cardElement.appendChild(frontElement);
+            
+            cardElement.dataset.cardType = 'standard';
+            return cardElement;
+        }
         // Regular theme cards
         else {
             cardElement.dataset.value = card;

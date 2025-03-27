@@ -60,6 +60,8 @@ class GameController {
         this.gameStartTime = Date.now();
         this.lastMatchTime = this.gameStartTime;
         
+        // Remove the math expression game option
+        
         // Check for spelling theme
         if (theme === 'englishSpellings') {
             this.setupSpellingGame();
@@ -357,6 +359,9 @@ class GameController {
         // Add extra logging for debugging
         console.log(`Multi-name game setup with ${this.cardPairs} pairs to match. ${cards.length} total cards created.`);
         console.log(`Game will complete when ${adjustedPairsCount} emoji cards match with ${adjustedPairsCount * 2} name cards`);
+        
+        // Add game info using the new method
+        this.ui.showGameInstructions('Find all matching emoji and name pairs! Each emoji has TWO correct name matches.', board);
     }
     
     // Setup for Number theme with addition operations (Easy level)
@@ -372,11 +377,8 @@ class GameController {
         // Setup UI with info about matching
         const board = this.ui.setupEasyUI(this.currentDifficulty);
         
-        // Add explanation
-        const infoElement = document.createElement('div');
-        infoElement.className = 'game-info';
-        infoElement.innerHTML = '<p>Match each number with two other numbers that add up to it! Example: 10 matches with both 7 and 3.</p>';
-        board.before(infoElement);
+        // Add explanation using the new method
+        this.ui.showGameInstructions('Match each number with the card with two numbers that add up to it! Example: 10 matches with a card with value 7 + 3.', board);
         
         // Display cards
         this.ui.displayCards(cards, board, 'easy', this.currentDifficulty);
@@ -402,11 +404,8 @@ class GameController {
         // Setup UI with info about matching
         const board = this.ui.setupEasyUI(this.currentDifficulty);
         
-        // Add explanation
-        const infoElement = document.createElement('div');
-        infoElement.className = 'game-info';
-        infoElement.innerHTML = '<p>Match each number with two factors that multiply to give it! Example: 12 matches with both 3 and 4.</p>';
-        board.before(infoElement);
+        // Add explanation using the new method
+        this.ui.showGameInstructions('Match each number with two factors that multiply to give it! Example: 12 matches with both 3 and 4.', board);
         
         // Display cards
         this.ui.displayCards(cards, board, 'warning', this.currentDifficulty);
@@ -429,11 +428,8 @@ class GameController {
         // Setup UI
         const board = this.ui.setupDangerUI(6);
         
-        // Add explanation
-        const infoElement = document.createElement('div');
-        infoElement.className = 'game-info';
-        infoElement.innerHTML = '<p>Match each result with its calculation! Find the number, operator, and operand that form a correct equation.</p>';
-        board.before(infoElement);
+        // Add explanation using the new method
+        this.ui.showGameInstructions('Match each result with its calculation! Find the number, operator, and operand that form a correct equation.', board);
         
         // Display cards
         this.ui.displayCards(cards, board, 'danger', this.currentDifficulty);
@@ -460,20 +456,14 @@ class GameController {
         let cardCount = 0;
         
         if (this.currentProficiency === 'easy') {
-            // Add explanation for easy
-            const infoElement = document.createElement('div');
-            infoElement.className = 'game-info';
-            infoElement.innerHTML = '<p>Match each word with its meaning!</p>';
-            board.before(infoElement);
+            // Add explanation for easy using the new method
+            this.ui.showGameInstructions('Match each word with its meaning!', board);
             
             cardCount = cards.length / 2;
         } 
         else if (this.currentProficiency === 'warning') {
-            // Add explanation for warning
-            const infoElement = document.createElement('div');
-            infoElement.className = 'game-info';
-            infoElement.innerHTML = '<p>Match each word with its possible meanings. Each word has multiple correct meanings!</p>';
-            board.before(infoElement);
+            // Add explanation for warning using the new method
+            this.ui.showGameInstructions('Match each word with its possible meanings. Each word has multiple correct meanings!', board);
             
             // Count non-word cards to determine match count
             const wordCards = cards.filter(card => card.isWord);
@@ -481,11 +471,8 @@ class GameController {
             cardCount = wordCards.length * (meaningCards.length / wordCards.length);
         }
         else if (this.currentProficiency === 'danger') {
-            // Add explanation for danger
-            const infoElement = document.createElement('div');
-            infoElement.className = 'game-info';
-            infoElement.innerHTML = '<p>Match words and meanings in the same category. Categories can match with words or meanings!</p>';
-            board.before(infoElement);
+            // Add explanation for danger using the new method
+            this.ui.showGameInstructions('Match words and meanings in the same category. Categories can match with words or meanings!', board);
             
             // For danger level, we're matching each card with each other card in the same group
             const categoryGroups = {};
@@ -531,11 +518,8 @@ class GameController {
             const cards = this.cardManager.createSpellingCards(diffSettings.pairsCount);
             const board = this.ui.setupEasyUI(this.currentDifficulty);
             
-            // Add explanation
-            const infoElement = document.createElement('div');
-            infoElement.className = 'game-info';
-            infoElement.innerHTML = '<p>Match each word with its correct spelling!</p>';
-            board.before(infoElement);
+            // Add explanation using the new method
+            this.ui.showGameInstructions('Match each word with its correct spelling!', board);
             
             this.ui.displayCards(cards, board, 'easy', this.currentDifficulty);
             document.querySelectorAll('.card').forEach(card => {
@@ -549,11 +533,8 @@ class GameController {
             const cards = this.cardManager.createConfusedWordsCards(Math.floor(diffSettings.pairsCount/2));
             const board = this.ui.setupEasyUI(this.currentDifficulty);
             
-            // Add explanation
-            const infoElement = document.createElement('div');
-            infoElement.className = 'game-info';
-            infoElement.innerHTML = '<p>Match each word with its correct meaning! Be careful with commonly confused words.</p>';
-            board.before(infoElement);
+            // Add explanation using the new method
+            this.ui.showGameInstructions('Match each word with its correct meaning! Be careful with commonly confused words.', board);
             
             this.ui.displayCards(cards, board, 'warning', this.currentDifficulty);
             document.querySelectorAll('.card').forEach(card => {
@@ -567,11 +548,8 @@ class GameController {
             const cards = this.cardManager.createSpellingWithMeaningCards(Math.floor(diffSettings.pairsCount/3));
             const board = this.ui.setupDangerUI(6);
             
-            // Add explanation
-            const infoElement = document.createElement('div');
-            infoElement.className = 'game-info';
-            infoElement.innerHTML = '<p>Match words with their correct spellings and meanings!</p>';
-            board.before(infoElement);
+            // Add explanation using the new method
+            this.ui.showGameInstructions('Match words with their correct spellings and meanings!', board);
             
             this.ui.displayCards(cards, board, 'danger', this.currentDifficulty);
             document.querySelectorAll('.card').forEach(card => {

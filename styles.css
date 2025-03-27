@@ -22,15 +22,20 @@
     box-sizing: border-box;
 }
 
+/* Main styles for Nia's Memory Game */
+
 body {
+    background-color: #f8f0ff;
     font-family: 'Nunito', sans-serif;
-    padding: 20px;
+    padding-bottom: 100px;
     background-color: var(--light-bg);
     background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="%23ba68c8" opacity="0.05" d="M10 10l20 20L10 50l20 20L10 90h80V70l-20-20 20-20V10H10z"/></svg>');
     background-size: 300px;
     color: var(--text-color);
     min-height: 100vh;
     margin: 0;
+    padding-bottom: 100px;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%239c27b0" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>') 12 12, auto;
 }
 
 .container {
@@ -43,6 +48,12 @@ body {
 }
 
 h1 {
+    color: #9c27b0;
+    text-align: center;
+    margin: 20px 0;
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: 2.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     text-align: center;
     margin-bottom: 25px;
     color: var(--primary-purple);
@@ -50,6 +61,8 @@ h1 {
     font-size: 2.8rem;
     text-shadow: 3px 3px 0px var(--accent-yellow);
     letter-spacing: 1px;
+    margin: 20px 0;
+    font-size: 2.5rem;
 }
 
 h1::before, h1::after {
@@ -69,12 +82,20 @@ h1::before, h1::after {
 
 .settings-row {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    display: flex;
     gap: 15px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .settings-row .form-group {
+    flex: 0 0 32%;
     flex: 1;
+    flex: 0 0 32%;
 }
 
 .form-group label {
@@ -99,6 +120,17 @@ h1::before, h1::after {
 }
 
 #startGame {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 0 #6a1b9a;
+    color: #ffeb3b; /* Changed from default white to bright yellow */
+    font-weight: bold; /* Make it bold for better visibility */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Add subtle text shadow for better readability */
     background-color: var(--accent-yellow) !important;
     border: none !important;
     border-radius: 50px !important;
@@ -113,17 +145,42 @@ h1::before, h1::after {
     display: block;
     margin: 0 auto;
     min-width: 200px;
+    padding: 10px 30px;
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    box-shadow: 0 4px 0 #6a1b9a;
+}
+
+#startGame, 
+button#startGame, 
+.container button#startGame {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 0 #6a1b9a;
+    color: #ffeb3b !important; /* Using !important to override any other styles */
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 #startGame:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #6a1b9a;
     background-color: var(--bright-yellow) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 0 var(--muted-yellow) !important;
+    box-shadow: 0 6px 0 #6a1b9a;
 }
 
 #startGame:active {
     transform: translateY(2px);
+    box-shadow: 0 2px 0 #6a1b9a;
+    transform: translateY(2px);
     box-shadow: 0 2px 0 var(--muted-yellow) !important;
+    box-shadow: 0 2px 0 #6a1b9a;
 }
 
 #gameContainer {
@@ -131,15 +188,27 @@ h1::before, h1::after {
     position: relative;
 }
 
+/* Game board */
 .game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    max-width: 800px;
+    margin: 20px auto;
+    perspective: 1000px;
     display: grid;
     grid-gap: 12px;
     margin: 0 auto 25px;
     justify-content: center;
     perspective: 1000px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    max-width: 800px;
+    margin: 20px auto;
 }
 
 .hidden {
+    display: none !important;
     display: none;
 }
 
@@ -194,7 +263,15 @@ h1::before, h1::after {
     border-left: 5px solid #ffe66d;
 }
 
+/* Card styles */
 .card {
+    height: 120px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 100px;
     height: 100px;
     position: relative;
@@ -204,6 +281,10 @@ h1::before, h1::after {
     transform-style: preserve-3d;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: 120px;
+    transition: transform 0.6s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    user-select: none;
 }
 
 .card:hover {
@@ -211,13 +292,17 @@ h1::before, h1::after {
 }
 
 .card-small {
+    height: 100px;
     width: 80px;
     height: 80px;
+    height: 100px;
 }
 
 .card-large {
+    height: 150px;
     width: 120px;
     height: 120px;
+    height: 150px;
 }
 
 .card.flipped {
@@ -225,6 +310,15 @@ h1::before, h1::after {
 }
 
 .card-back, .card-front {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1.5rem;
     width: 100%;
     height: 100%;
     position: absolute;
@@ -235,14 +329,21 @@ h1::before, h1::after {
     justify-content: center;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-size: 1.5rem;
 }
 
 .card-back {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8);
+    color: white;
+    font-weight: bold;
+    font-size: 2rem;
     background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     color: white;
     font-size: 28px;
     font-weight: bold;
     border: 3px solid var(--light-purple);
+    background: linear-gradient(135deg, #9c27b0, #ba68c8);
+    font-size: 2rem;
 }
 
 .card-back::after {
@@ -253,62 +354,17 @@ h1::before, h1::after {
 
 .card-front {
     background-color: white;
+    transform: rotateY(180deg);
+    border: 3px solid #9c27b0;
+    background-color: white;
     border: 3px solid var(--accent-yellow);
     transform: rotateY(180deg);
     font-size: 24px;
 }
 
-.card.matched {
-    background-color: #d4edda;
-    border-color: var(--accent-yellow);
-    animation: celebrate 0.5s ease-in-out;
-}
-
-#scoreBoard {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    font-size: 20px;
-    margin-top: 20px;
-}
-
-.multiname-mode .card {
-    border: 1px solid #ddd;
-}
-
-.game-info {
-    background-color: var(--light-bg);
-    padding: 12px 18px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    font-weight: 600;
-    border-left: 5px solid var(--primary-purple);
-    color: var(--dark-purple);
-}
-
-.multiname-mode .matched {
-    border: 2px solid #4CAF50 !important;
-    box-shadow: 0 0 8px #4CAF50 !important;
-}
-
-.multiname-mode .card[data-is-emoji="true"] .card-front {
-    background-color: rgba(230, 250, 230, 0.3);
-}
-
-.multiname-mode .card[data-is-name="true"] .card-front {
-    background-color: rgba(230, 230, 250, 0.3);
-}
-
-.multiname-mode [data-match-group="group-0"] .card-front {
-    border-left: 5px solid #ff6b6b;
-}
-
-.multiname-mode [data-match-group="group-1"] .card-front {
-    border-left: 5px solid #4ecdc4;
-}
-
-.multiname-mode [data-match-group="group-2"] .card-front {
-    border-left: 5px solid #ffe66d;
+.card.matched .card-front {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
 }
 
 .multiname-mode [data-match-group="group-3"] .card-front {
@@ -423,6 +479,43 @@ h1::before, h1::after {
     background-color: rgba(240, 255, 240, 0.5);
 }
 
+/* Emoji card styles */
+.emoji-card .card-front {
+    font-size: 40px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.text-card .card-front {
+    font-size: 16px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word;
+}
+
+.hindi-text .card-front {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+/* Expression card styles */
+.expression-card .card-front {
+    font-size: 20px !important;
+    font-family: 'Courier New', monospace;
+    color: #3F51B5;
+    font-weight: bold;
+}
+
+.number-card .card-front {
+    font-size: 32px !important;
+    color: #E91E63;
+    font-weight: bold;
+}
+
 .points-container {
     display: flex;
     flex-direction: column;
@@ -432,18 +525,22 @@ h1::before, h1::after {
     background-color: var(--white);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border: 2px dashed var(--accent-yellow);
+    background: #fff;
+    border: 2px solid #e1bee7;
 }
 
 .points-row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .points-label {
     font-weight: bold;
     color: var(--primary-purple);
     font-size: 1.1rem;
+    color: #7b1fa2;
 }
 
 .points-value {
@@ -453,12 +550,15 @@ h1::before, h1::after {
     background-color: var(--light-bg);
     padding: 2px 10px;
     border-radius: 10px;
+    font-size: 1.2rem;
+    color: #9c27b0;
 }
 
 .level-container {
     display: flex;
     align-items: center;
     margin-top: 10px;
+    margin-top: 15px;
 }
 
 .level-badge {
@@ -474,6 +574,9 @@ h1::before, h1::after {
     font-weight: bold;
     font-size: 1.2rem;
     border: 2px solid var(--accent-yellow);
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    width: 30px;
+    height: 30px;
 }
 
 .progress {
@@ -483,6 +586,7 @@ h1::before, h1::after {
     border-radius: 20px;
     overflow: hidden;
     border: 1px solid var(--light-purple);
+    background-color: #f5f5f5;
 }
 
 .progress-bar {
@@ -493,6 +597,8 @@ h1::before, h1::after {
     font-size: 10px;
     line-height: 15px;
     transition: width 0.5s ease;
+    background: linear-gradient(135deg, #9c27b0, #ff4081);
+    border-radius: 10px;
 }
 
 .achievements-container {
@@ -504,6 +610,7 @@ h1::before, h1::after {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    justify-content: center;
 }
 
 .achievement-badge {
@@ -515,11 +622,20 @@ h1::before, h1::after {
     border: 2px solid var(--primary-purple);
     width: 180px;
     transition: all 0.3s;
+    background: #f8f0ff;
+    padding: 10px 15px;
+    border-radius: 10px;
+    gap: 10px;
+    transition: all 0.2s;
+    border: 2px dashed #ba68c8;
+    max-width: 220px;
 }
 
 .achievement-badge:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    border-style: solid;
+    border-color: #9c27b0;
 }
 
 .achievement-icon {
@@ -532,6 +648,7 @@ h1::before, h1::after {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    font-size: 30px;
 }
 
 .achievement-info {
@@ -542,12 +659,16 @@ h1::before, h1::after {
     font-weight: bold;
     font-size: 14px;
     color: var(--dark-purple);
+    margin-bottom: 2px;
+    color: #7b1fa2;
 }
 
 .achievement-points {
     color: var(--primary-purple);
     font-size: 12px;
     font-weight: bold;
+    color: #ff4081;
+    font-size: 0.9rem;
 }
 
 .points-earned {
@@ -562,6 +683,8 @@ h1::before, h1::after {
     padding: 5px 10px;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    color: #9c27b0;
+    background: rgba(255,255,255,0.8);
 }
 
 .modal-overlay {
@@ -579,6 +702,8 @@ h1::before, h1::after {
 
 .modal-overlay.fade-out {
     animation: fadeOut 0.5s;
+    opacity: 0;
+    transition: opacity 0.5s;
 }
 
 .game-summary {
@@ -593,6 +718,10 @@ h1::before, h1::after {
     animation: pop 0.5s;
     position: relative;
     overflow: hidden;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 5px solid #ffc107;
 }
 
 .game-summary::before {
@@ -624,6 +753,7 @@ h1::before, h1::after {
     margin-bottom: 25px;
     font-family: 'Bubblegum Sans', cursive;
     font-size: 2rem;
+    margin-top: 0;
 }
 
 .game-summary h3::after {
@@ -636,6 +766,9 @@ h1::before, h1::after {
     background: var(--light-bg);
     padding: 15px;
     border-radius: 15px;
+    background: #f8f0ff;
+    margin: 20px 0;
+    text-align: left;
 }
 
 .summary-points .row {
@@ -654,6 +787,8 @@ h1::before, h1::after {
     margin-top: 10px;
     border-top: 2px solid var(--accent-yellow) !important;
     padding-top: 15px !important;
+    border-top: 2px dashed #ba68c8;
+    padding-top: 10px;
 }
 
 .perfect-game {
@@ -661,6 +796,8 @@ h1::before, h1::after {
     padding: 15px;
     background-color: #d4edda;
     border-radius: 15px;
+    background: #e8f5e9;
+    margin-top: 20px;
 }
 
 .badge-success {
@@ -772,6 +909,9 @@ h1::before, h1::after {
     align-items: center;
     animation: pulse 2s infinite;
     border: 2px solid var(--accent-yellow);
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    padding: 5px 15px;
+    gap: 8px;
 }
 
 .active-event .event-icon {
@@ -787,6 +927,32 @@ h1::before, h1::after {
     padding: 2px 6px;
     border-radius: 10px;
     font-size: 12px;
+    background: rgba(255,255,255,0.3);
+    padding: 2px 8px;
+}
+
+/* Game info styles - enhanced */
+.game-info {
+    background: linear-gradient(to right, #f8f0ff, #fff4e0);
+    padding: 15px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+    border-left: 5px solid #9c27b0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: #7b1fa2;
+    transition: all 0.3s ease;
+}
+
+.game-info p {
+    margin: 0;
+}
+
+.game-info.animate__fadeIn {
+    animation-duration: 0.8s;
 }
 
 @media (max-width: 768px) {
@@ -797,16 +963,19 @@ h1::before, h1::after {
     .card {
         width: 80px;
         height: 80px;
+        height: 90px;
     }
     
     .card-large {
         width: 100px;
         height: 100px;
+        height: 110px;
     }
     
     .card-small {
         width: 70px;
         height: 70px;
+        height: 80px;
     }
     
     h1 {
@@ -816,8 +985,13 @@ h1::before, h1::after {
     .container {
         padding: 15px;
     }
-}
-
-body {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%239c27b0" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>') 12 12, auto;
+    
+    .settings-row .form-group {
+        flex: 0 0 100%;
+        margin-bottom: 15px;
+    }
+    
+    .card-front, .card-back {
+        font-size: 1.2rem;
+    }
 }
