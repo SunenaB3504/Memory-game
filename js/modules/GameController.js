@@ -191,6 +191,11 @@ class GameController {
     handleGameCompletion() {
         console.log("Game is complete! Showing game completion summary.");
         
+        // Play success sound
+        if (window.soundManager) {
+            window.soundManager.play('success');
+        }
+        
         // Calculate game completion time
         const gameTime = (Date.now() - this.gameStartTime) / 1000; // seconds
         

@@ -364,6 +364,11 @@ class RewardRedemption {
             this.claimedRewards.push(reward.id);
             this.saveClaimedRewards();
             
+            // Play success sound
+            if (window.soundManager) {
+                window.soundManager.play('success');
+            }
+            
             // Show success message
             this.showClaimConfirmation(reward);
             

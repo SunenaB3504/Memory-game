@@ -41,6 +41,11 @@ class GameModes {
         if (this.gameController.lockBoard || card === this.gameController.firstCard) return;
         if (card.classList.contains('matched')) return;
 
+        // Play click sound when flipping a card
+        if (window.soundManager) {
+            window.soundManager.play('click');
+        }
+
         card.classList.add('flipped');
 
         if (!this.gameController.firstCard) {
@@ -59,6 +64,11 @@ class GameModes {
     flipCardWarning(card) {
         if (this.gameController.lockBoard) return;
         if (card === this.gameController.firstCard || card === this.gameController.secondCard) return;
+
+        // Play click sound
+        if (window.soundManager) {
+            window.soundManager.play('click');
+        }
 
         card.classList.add('flipped');
         
@@ -123,6 +133,11 @@ class GameModes {
         if (this.gameController.lockBoard) return;
         if (card === this.gameController.firstCard || card === this.gameController.secondCard) return;
         if (card.classList.contains('matched')) return;
+
+        // Play click sound
+        if (window.soundManager) {
+            window.soundManager.play('click');
+        }
 
         card.classList.add('flipped');
         
@@ -284,6 +299,11 @@ class GameModes {
         if (card === this.gameController.firstCard) return;
         if (card.classList.contains('matched')) return;
 
+        // Play click sound
+        if (window.soundManager) {
+            window.soundManager.play('click');
+        }
+
         card.classList.add('flipped');
         
         // Debug
@@ -318,8 +338,16 @@ class GameModes {
             
             if (isMatch) {
                 this.disableCards();
+                // Play correct sound
+                if (window.soundManager) {
+                    window.soundManager.play('correct');
+                }
             } else {
                 this.unflipCards();
+                // Play incorrect sound
+                if (window.soundManager) {
+                    window.soundManager.play('incorrect');
+                }
             }
             return;
         }
@@ -333,8 +361,16 @@ class GameModes {
             
             if (isMatch) {
                 this.disableCards();
+                // Play correct sound
+                if (window.soundManager) {
+                    window.soundManager.play('correct');
+                }
             } else {
                 this.unflipCards();
+                // Play incorrect sound
+                if (window.soundManager) {
+                    window.soundManager.play('incorrect');
+                }
             }
             return;
         }
@@ -348,8 +384,16 @@ class GameModes {
             
             if (isMatch) {
                 this.disableCards();
+                // Play correct sound
+                if (window.soundManager) {
+                    window.soundManager.play('correct');
+                }
             } else {
                 this.unflipCards();
+                // Play incorrect sound
+                if (window.soundManager) {
+                    window.soundManager.play('incorrect');
+                }
             }
             return;
         }
@@ -359,8 +403,16 @@ class GameModes {
 
         if (isMatch) {
             this.disableCards();
+            // Play correct sound
+            if (window.soundManager) {
+                window.soundManager.play('correct');
+            }
         } else {
             this.unflipCards();
+            // Play incorrect sound
+            if (window.soundManager) {
+                window.soundManager.play('incorrect');
+            }
         }
     }
     
@@ -499,6 +551,11 @@ class GameModes {
         // Award points for match
         this.gameController.handleSuccessfulMatch();
         
+        // Play correct sound
+        if (window.soundManager) {
+            window.soundManager.play('correct');
+        }
+
         this.resetBoardState();
     }
     
@@ -536,6 +593,11 @@ class GameModes {
     unflipCards() {
         this.gameController.lockBoard = true;
         
+        // Play incorrect sound
+        if (window.soundManager) {
+            window.soundManager.play('incorrect');
+        }
+
         setTimeout(() => {
             this.gameController.firstCard.classList.remove('flipped');
             this.gameController.secondCard.classList.remove('flipped');

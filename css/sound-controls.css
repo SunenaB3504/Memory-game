@@ -1,0 +1,104 @@
+/* Styles for sound and music controls */
+
+/* Custom slider styling for webkit browsers */
+input[type="range"] {
+    -webkit-appearance: none;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    background-image: linear-gradient(#9c27b0, #9c27b0);
+    background-repeat: no-repeat;
+}
+
+/* Thumb styling */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #ffc107;
+    cursor: pointer;
+    border: 2px solid #9c27b0;
+    transition: all 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #ffc107;
+    cursor: pointer;
+    border: 2px solid #9c27b0;
+    transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* Fill styling */
+input[type="range"]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+}
+
+input[type="range"]::-moz-range-track {
+    box-shadow: none;
+    border: none;
+    background: transparent;
+}
+
+/* Control buttons animation */
+.sound-toggle-btn,
+.music-toggle-btn,
+.volume-icon {
+    position: relative;
+    overflow: hidden;
+}
+
+.sound-toggle-btn:after,
+.music-toggle-btn:after,
+.volume-icon:after {
+    content: "";
+    background: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 100%;
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.sound-toggle-btn:active:after,
+.music-toggle-btn:active:after,
+.volume-icon:active:after {
+    transform: scale(20);
+    opacity: 1;
+    transition: 0s;
+}
+
+/* Volume panel animation */
+.volume-panel {
+    transform-origin: top right;
+    animation: scale-in 0.2s ease-out;
+}
+
+@keyframes scale-in {
+    0% { 
+        transform: scale(0.8); 
+        opacity: 0; 
+    }
+    100% { 
+        transform: scale(1); 
+        opacity: 1; 
+    }
+}
