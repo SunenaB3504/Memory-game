@@ -216,6 +216,13 @@ class PointsSystem {
         // Save progress
         this.saveProgress();
         
+        // Show next reward milestone if available
+        if (window._gameController && window._gameController.ui) {
+            setTimeout(() => {
+                window._gameController.ui.showNextRewardMilestone(this.totalPoints);
+            }, 2000); // Show after game completion summary
+        }
+        
         return {
             matchPoints: this.currentPoints - points,
             completionPoints: points,

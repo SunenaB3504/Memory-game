@@ -417,6 +417,26 @@ class UIController {
             `;
         }
         
+        // Check if there's a reward redemption system and we're close to a milestone
+        if (window.rewardRedemption) {
+            // Find the next unclaimed reward
+            const nextReward = window.rewardRedemption.rewardTiers
+                .filter(reward => !window.rewardRedemption.claimedRewards.includes(reward.id))
+                .sort((a, b) => a.points - b.points)
+                .find(reward => reward.points > results.totalPoints);
+            
+            if (nextReward && nextReward.points - results.totalPoints <= 200) {
+                // We're close to a reward milestone, show it in the summary
+                content += `
+                    <div style="background: #f8f0ff; padding: 15px; border-radius: 15px; margin-top: 15px; text-align: center;">
+                        <p>You're getting close to a reward!</p>
+                        <div style="font-size: 24px; margin: 5px 0;">${nextReward.icon} ${nextReward.name}</div>
+                        <p>Just ${nextReward.points - results.totalPoints} more points to go!</p>
+                    </div>
+                `;
+            }
+        }
+        
         summaryContainer.innerHTML = content;
         
         // Create modal overlay
@@ -563,5 +583,46 @@ class UIController {
                 encourageElement.remove();
             }, 1000);
         }, 1500);
+    }
+
+    // Show next reward milestone
+    showNextRewardMilestone(totalPoints) {
+        if (!window.rewardRedemption) return;
+        
+        // Find the next unclaimed reward
+        const nextReward = window.rewardRedemption.rewardTiers
+            .filter(reward => !window.rewardRedemption.claimedRewards.includes(reward.id))
+            .sort((a, b) => a.points - b.points)
+            .find(reward => reward.points > totalPoints);
+        
+        if (!nextReward) return; // No next reward found
+        
+        // Create the milestone notification
+        const notification = document.createElement('div');
+        notification.className = 'next-reward-indicator animate__animated animate__fadeIn';
+        
+        // Progress percentage
+        const lastMilestone = window.rewardRedemption.rewardTiers
+            .filter(reward => reward.points < nextReward.points)
+            .sort((a, b) => b.points - a.points)[0]?.points || 0;
+        
+        const progressPercentage = Math.min(100, Math.floor(((totalPoints - lastMilestone) / (nextReward.points - lastMilestone)) * 100));
+        const pointsNeeded = nextReward.points - totalPoints;
+        
+        notification.innerHTML = `
+            <div class="next-reward-icon">${nextReward.icon}</div>
+            <div class="next-reward-info">
+                <div class="next-reward-name">${nextReward.name}</div>
+                <div class="next-reward-points">
+                    ${pointsNeeded} more points needed!
+                </div>
+                <div class="next-reward-progress">
+                    <div class="next-reward-progress-bar" style="width: ${progressPercentage}%"></div>
+                </div>
+            </div>
+        `;
+        
+        // Show the notification
+        this.showRewardMessage(notification.outerHTML);
     }
 }
