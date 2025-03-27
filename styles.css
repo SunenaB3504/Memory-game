@@ -242,3 +242,96 @@ button:hover {
     font-size: 20px;
     margin-top: 20px;
 }
+
+/* Styles for multi-name matching */
+.multiname-mode .card {
+    border: 1px solid #ddd;
+}
+
+.game-info {
+    background-color: #f0e6f5;
+    color: #9c27b0;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.multiname-mode .matched {
+    border: 2px solid #4CAF50 !important;
+    box-shadow: 0 0 8px #4CAF50 !important;
+}
+
+/* Make matches more visually obvious */
+.multiname-mode .card[data-is-emoji="true"] .card-front {
+    background-color: rgba(230, 250, 230, 0.3);
+}
+
+.multiname-mode .card[data-is-name="true"] .card-front {
+    background-color: rgba(230, 230, 250, 0.3);
+}
+
+/* More distinct matching group colors */
+.multiname-mode [data-match-group="group-0"] .card-front {
+    border-left: 5px solid #ff6b6b;
+}
+
+.multiname-mode [data-match-group="group-1"] .card-front {
+    border-left: 5px solid #4ecdc4;
+}
+
+.multiname-mode [data-match-group="group-2"] .card-front {
+    border-left: 5px solid #ffe66d;
+}
+
+.multiname-mode [data-match-group="group-3"] .card-front {
+    border-left: 5px solid #9c88ff;
+}
+
+/* Add visual indication of which cards form a group */
+[data-match-group^="group-0"] .card-front {
+    background-color: rgba(255, 235, 235, 0.5);
+}
+
+[data-match-group^="group-1"] .card-front {
+    background-color: rgba(235, 255, 235, 0.5);
+}
+
+[data-match-group^="group-2"] .card-front {
+    background-color: rgba(235, 235, 255, 0.5);
+}
+
+/* Number and operator card styles */
+.number-card .card-front {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+}
+
+.operator-card .card-front {
+    font-size: 40px;
+    font-weight: bold;
+    color: #9c27b0;
+}
+
+/* Cards for different operations */
+.card[data-match-op="add"] .card-front {
+    background-color: rgba(200, 230, 200, 0.3);
+}
+
+.card[data-match-op="multiply"] .card-front {
+    background-color: rgba(230, 200, 230, 0.3);
+}
+
+.card[data-match-op="-"] .card-front {
+    background-color: rgba(230, 230, 200, 0.3);
+}
+
+.card[data-match-op="÷"] .card-front {
+    background-color: rgba(200, 230, 230, 0.3);
+}
+
+/* Special styling for result cards */
+.card[data-is-result="true"] .card-front {
+    border: 2px dashed #9c27b0;
+}

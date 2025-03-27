@@ -21,6 +21,8 @@
                 <option value="hindiWords">Hindi Words</option>
                 <option value="emojiToEnglish">Emoji to English</option>
                 <option value="emojiToHindi">Emoji to Hindi</option>
+                <option value="emojiToMultipleEnglish">Emoji to Multiple English Names</option>
+                <option value="emojiToMultipleHindi">Emoji to Multiple Hindi Names</option>
             </select>
             <label for="proficiency">Proficiency:</label>
             <select id="proficiency">
@@ -45,7 +47,13 @@
             <p>Attempts: <span id="attempts">0</span></p>
         </div>
     </div>
-    <script src="script.js"></script>
-    <script src="fix-grid.js"></script>
+    <!-- Replace single script with modular scripts -->
+    <script src="js/data/themes.js"></script>
+    <script src="js/data/settings.js"></script>
+    <script src="js/modules/CardManager.js"></script>
+    <script src="js/modules/GameModes.js"></script>
+    <script src="js/modules/UIController.js"></script>
+    <script src="js/modules/GameController.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

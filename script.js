@@ -55,6 +55,37 @@ document.addEventListener('DOMContentLoaded', () => {
             { emoji: '🌊', name: 'पानी' },
             { emoji: '🌲', name: 'पेड़' },
             { emoji: '📱', name: 'फोन' }
+        ],
+        // New theme: Emoji to multiple English names
+        emojiToMultipleEnglish: [
+            { emoji: '🐕', names: ['Dog', 'Puppy'] },
+            { emoji: '🏠', names: ['House', 'Home'] },
+            { emoji: '👕', names: ['Shirt', 'Tee'] },
+            { emoji: '🚗', names: ['Car', 'Auto'] },
+            { emoji: '👶', names: ['Baby', 'Infant'] },
+            { emoji: '🍔', names: ['Burger', 'Hamburger'] },
+            { emoji: '📱', names: ['Phone', 'Mobile'] },
+            { emoji: '🛌', names: ['Bed', 'Sleep'] },
+            { emoji: '🚲', names: ['Bicycle', 'Bike'] },
+            { emoji: '🧑‍⚕️', names: ['Doctor', 'Physician'] },
+            { emoji: '🏃', names: ['Run', 'Sprint'] },
+            { emoji: '📚', names: ['Books', 'Library'] }
+        ],
+        
+        // New theme: Emoji to multiple Hindi names
+        emojiToMultipleHindi: [
+            { emoji: '🐕', names: ['कुत्ता', 'पिल्ला'] },
+            { emoji: '🏠', names: ['घर', 'मकान'] },
+            { emoji: '👕', names: ['कमीज', 'शर्ट'] },
+            { emoji: '🚗', names: ['कार', 'गाड़ी'] },
+            { emoji: '👶', names: ['बच्चा', 'शिशु'] },
+            { emoji: '🍔', names: ['बर्गर', 'हैमबर्गर'] },
+            { emoji: '📱', names: ['फ़ोन', 'मोबाइल'] },
+            { emoji: '🛌', names: ['बिस्तर', 'पलंग'] },
+            { emoji: '🚲', names: ['साइकिल', 'बाइक'] },
+            { emoji: '🧑‍⚕️', names: ['डॉक्टर', 'चिकित्सक'] },
+            { emoji: '🏃', names: ['दौड़ना', 'भागना'] },
+            { emoji: '📚', names: ['किताबें', 'पुस्तकें'] }
         ]
     };
 
@@ -105,6 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log(`Theme: ${theme}, Proficiency: ${currentProficiency}, Difficulty: ${currentDifficulty}`);
         
+        // Check for multi-name themes
+        if (theme === 'emojiToMultipleEnglish' || theme === 'emojiToMultipleHindi') {
+            setupMultiNameGame(theme, currentDifficulty);
+            return;
+        }
+        
+        // Original proficiency-based setup
         switch(currentProficiency) {
             case 'easy':
                 setupEasyLevel(theme, currentDifficulty);
@@ -214,7 +252,41 @@ document.addEventListener('DOMContentLoaded', () => {
         cardPairs = groupsCount; // Number of complete groups
     }
 
+    // Add initialization for multi-name theme gameplay
+    function setupMultiNameGame(theme, difficulty) {
+        gameContainer.classList.add('multiname-mode');
+        
+        const diffSettings = difficultySettings[difficulty];
+        
+        // For multi-name themes, we use fewer pairs since each "pair" is actually a trio
+        const adjustedPairsCount = Math.floor(diffSettings.pairsCount / 2);
+        
+        // Create cards
+        const cards = createMultiNameCards(theme, adjustedPairsCount);
+        
+        // Set grid layout
+        const gridColumns = difficulty === 'hard' ? 6 : 4;
+        gameBoard.style.gridTemplateColumns = `repeat(${gridColumns}, 1fr)`;
+        
+        // Display cards
+        displayCards(cards, gameBoard, 'multiname');
+        
+        // Set up match tracking - each emoji has 2 matching names
+        cardPairs = adjustedPairsCount * 2; // Each group has 2 possible matches (emoji-name1, emoji-name2)
+        
+        // Update the game info
+        const infoElement = document.createElement('div');
+        infoElement.className = 'game-info';
+        infoElement.innerHTML = '<p>Find all matching emoji and name pairs! Each emoji has TWO correct name matches.</p>';
+        gameBoard.before(infoElement);
+    }
+
     function createStandardCards(theme, pairsCount) {
+        // Handle multi-name themes
+        if (theme === 'emojiToMultipleEnglish' || theme === 'emojiToMultipleHindi') {
+            return createMultiNameCards(theme, pairsCount);
+        }
+        
         // Existing card creation logic for standard (easy) mode
         if (theme === 'emojiToEnglish' || theme === 'emojiToHindi') {
             // ...existing code for emoji-text pairs...
@@ -344,6 +416,55 @@ document.addEventListener('DOMContentLoaded', () => {
         return cards.sort(() => 0.5 - Math.random());
     }
 
+    // Function to create cards with multiple correct matches
+    function createMultiNameCards(theme, pairsCount) {
+        let themeItems = [...themes[theme]];
+        
+        // Shuffle and select items
+        themeItems = themeItems
+            .sort(() => 0.5 - Math.random())
+            .slice(0, pairsCount);
+        
+        const cards = [];
+        
+        // Create card sets (one emoji + two name cards for each item)
+        themeItems.forEach((item, index) => {
+            // Add emoji card
+            cards.push({
+                id: `emoji-${index}`,
+                display: item.emoji,
+                type: 'emoji',
+                matchGroup: `group-${index}`,
+                isEmoji: true,
+                isName: false
+            });
+            
+            // Add first name card
+            cards.push({
+                id: `name1-${index}`,
+                display: item.names[0],
+                type: 'text',
+                matchGroup: `group-${index}`,
+                isEmoji: false,
+                isName: true,
+                nameIndex: 0
+            });
+            
+            // Add second name card
+            cards.push({
+                id: `name2-${index}`,
+                display: item.names[1],
+                type: 'text',
+                matchGroup: `group-${index}`,
+                isEmoji: false,
+                isName: true,
+                nameIndex: 1
+            });
+        });
+        
+        return cards.sort(() => 0.5 - Math.random());
+    }
+
     function displayCards(cards, boardElement, proficiency) {
         console.log(`Displaying ${cards.length} cards on board`);
         
@@ -358,8 +479,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 cardElement.classList.add('card-large');
             }
             
-            // For Warning and Danger levels, handle match groups
-            if (typeof card === 'object' && card.matchGroup !== undefined) {
+            // Handle multi-name cards
+            if (typeof card === 'object' && card.matchGroup && (card.isEmoji !== undefined || card.isName !== undefined)) {
+                cardElement.dataset.matchGroup = card.matchGroup;
+                cardElement.dataset.value = card.id;
+                // Convert boolean values to strings for data attributes
+                cardElement.dataset.isEmoji = String(card.isEmoji);
+                cardElement.dataset.isName = String(card.isName);
+                
+                if (card.type === 'text') {
+                    cardElement.classList.add('text-card');
+                    
+                    if (themeSelect.value === 'emojiToMultipleHindi') {
+                        cardElement.classList.add('hindi-text');
+                    }
+                }
+                
+                cardElement.innerHTML = `
+                    <div class="card-back">?</div>
+                    <div class="card-front">${card.display}</div>
+                `;
+                
+                // Assign multi-name click handler
+                cardElement.addEventListener('click', flipCardMultiName);
+            } 
+            // Handle existing card types
+            else if (typeof card === 'object' && card.matchGroup !== undefined) {
                 cardElement.dataset.matchGroup = card.matchGroup;
                 cardElement.classList.add(`match-group-${card.matchGroup}`);
                 
@@ -381,7 +526,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card-front">${card.display}</div>
                 `;
                 
-            } else if (typeof card === 'object' && card.id) {
+                // Set up different click handlers based on proficiency level
+                if (proficiency === 'warning') {
+                    cardElement.addEventListener('click', flipCardWarning);
+                } else if (proficiency === 'danger') {
+                    cardElement.addEventListener('click', flipCardDanger);
+                } else {
+                    cardElement.addEventListener('click', flipCardEasy);
+                }
+            } 
+            else if (typeof card === 'object' && card.id) {
                 // Original emoji-to-name matching cards
                 cardElement.dataset.value = card.id;
                 
@@ -413,15 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             cardElement.dataset.index = index;
-            
-            // Set up different click handlers based on proficiency level
-            if (proficiency === 'warning') {
-                cardElement.addEventListener('click', flipCardWarning);
-            } else if (proficiency === 'danger') {
-                cardElement.addEventListener('click', flipCardDanger);
-            } else {
-                cardElement.addEventListener('click', flipCardEasy);
-            }
             
             // Add a specific class to make debugging easier
             cardElement.classList.add('game-card');
@@ -562,6 +707,80 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reset this match group
             matchGroups[currentMatchGroup] = [];
         }
+    }
+
+    // Add a multiname card flipping function
+    function flipCardMultiName() {
+        if (lockBoard) return;
+        if (this === firstCard) return;
+        if (this.classList.contains('matched')) return;
+
+        this.classList.add('flipped');
+        
+        // Debug
+        console.log(`Card flipped: ${this.dataset.value}, isEmoji: ${this.dataset.isEmoji}, isName: ${this.dataset.isName}`);
+
+        if (!firstCard) {
+            firstCard = this;
+            return;
+        }
+
+        secondCard = this;
+        attempts++;
+        updateScore();
+        
+        // Check for match
+        checkForMultiNameMatch();
+    }
+
+    function checkForMultiNameMatch() {
+        console.log("Checking for multi-name match");
+        console.log(`First card: group=${firstCard.dataset.matchGroup}, isEmoji=${firstCard.dataset.isEmoji}, isName=${firstCard.dataset.isName}`);
+        console.log(`Second card: group=${secondCard.dataset.matchGroup}, isEmoji=${secondCard.dataset.isEmoji}, isName=${secondCard.dataset.isName}`);
+        
+        // Check if cards belong to the same match group
+        const sameMatchGroup = firstCard.dataset.matchGroup === secondCard.dataset.matchGroup;
+        
+        // Check if we have one emoji and one name card (not two emojis or two names)
+        const isEmojiNamePair = 
+            (firstCard.dataset.isEmoji === "true" && secondCard.dataset.isName === "true") || 
+            (firstCard.dataset.isName === "true" && secondCard.dataset.isEmoji === "true");
+        
+        console.log(`Same match group: ${sameMatchGroup}, Is emoji-name pair: ${isEmojiNamePair}`);
+        
+        if (sameMatchGroup && isEmojiNamePair) {
+            // It's a match!
+            console.log("MATCH FOUND!");
+            
+            // Mark as matched
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+            
+            // Visual indicator for matched pairs
+            firstCard.style.borderColor = "#4CAF50";
+            secondCard.style.borderColor = "#4CAF50";
+            
+            disableMultiNameCards();
+            matches++;
+            updateScore();
+            
+            if (matches === cardPairs) {
+                setTimeout(() => {
+                    alert(`Congratulations! You completed the game in ${attempts} attempts.`);
+                }, 500);
+            }
+        } else {
+            // Not a match
+            console.log("NO MATCH");
+            unflipCards();
+        }
+    }
+
+    function disableMultiNameCards() {
+        firstCard.removeEventListener('click', flipCardMultiName);
+        secondCard.removeEventListener('click', flipCardMultiName);
+        
+        resetBoardState();
     }
 
     function checkForMatchEasy() {
